@@ -1,0 +1,37 @@
+{
+  "format": "live-theme",
+  "version": 1,
+  "name": "stacked-mono",
+  "author": "",
+  "background": {
+    "type": "builtin",
+    "index": 0
+  },
+  "clock": {
+    "design": "stacked",
+    "font": "mono",
+    "color": "#D8F5E7",
+    "size": 0.95,
+    "shadow": 8,
+    "plate": 12,
+    "seconds": false,
+    "hour24": true,
+    "caption": "A LITTLE MOMENT FOR ME"
+  },
+  "effect": {
+    "type": "none",
+    "color": "#D8F5C0",
+    "amount": 24,
+    "speed": 0.6
+  },
+  "panel": {
+    "clock": true,
+    "date": true,
+    "calendar": true,
+    "music": true,
+    "memo": true,
+    "color": "#123C40",
+    "opacity": 62
+  },
+  "layouts": {}
+}

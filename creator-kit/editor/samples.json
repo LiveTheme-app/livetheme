@@ -1,0 +1,39 @@
+[
+ {
+  "sample": "forest-charge",
+  "summary": "충전량이 오를수록 연못 숲 아래에서 빛이 번져요. 주행 중에는 배경이 멈추고 살짝 어두워져요.",
+  "theme": {
+   "format": "live-theme", "version": 1,
+   "name": "충전하면 숲이 밝아져요", "author": "라이브테마 샘플",
+   "background": {"type": "builtin", "index": 0},
+   "panel": {"clock": true, "date": true, "calendar": false, "music": false, "memo": false, "dday": false, "weather": false, "battery": true,
+    "color": "#13372D", "textColor": "#F1F6E4", "mutedColor": "#BFD5C2", "accentColor": "#CFEAB4", "font": "sans", "corner": 24, "opacity": 60},
+   "clock": {"design": "digital", "font": "light", "color": "#F1F6E4", "caption": "CHARGE THE FOREST", "size": 1, "shadow": 10, "plate": 0, "seconds": false, "hour24": true},
+   "effect": {"type": "fireflies", "color": "#E6F7B8", "amount": 30, "speed": 0.8},
+   "links": {
+    "glow": {"source": "battery.level", "strength": 85, "color": "#D9F2A6"},
+    "dim": {"source": "drive.paused", "strength": 40}
+   },
+   "layouts": {}, "widgetStyles": {"battery": "focus"}, "widgetSkins": {}
+  }
+ },
+ {
+  "sample": "music-fireflies",
+  "summary": "음악을 틀면 반딧불이 빨라지고, 앨범 색이 바다 노을에 은은하게 물들어요. 밤에는 차분하게 어두워져요.",
+  "theme": {
+   "format": "live-theme", "version": 1,
+   "name": "음악에 맞춰 반딧불", "author": "라이브테마 샘플",
+   "background": {"type": "builtin", "index": 2},
+   "panel": {"clock": true, "date": true, "calendar": false, "music": true, "memo": false, "dday": false, "weather": false, "battery": false,
+    "color": "#1E2235", "textColor": "#FFF3E6", "mutedColor": "#E5CBB8", "accentColor": "#FFC38A", "font": "sans", "corner": 24, "opacity": 60},
+   "clock": {"design": "digital", "font": "light", "color": "#FFF3E6", "caption": "PLAY SOMETHING SOFT", "size": 1, "shadow": 12, "plate": 0, "seconds": false, "hour24": true},
+   "effect": {"type": "fireflies", "color": "#FFE2A8", "amount": 36, "speed": 0.7},
+   "links": {
+    "motion": {"source": "music.playing", "strength": 90},
+    "tint": {"source": "music.color", "strength": 55, "color": "#BFE8D2"},
+    "dim": {"source": "day.night", "strength": 35}
+   },
+   "layouts": {}, "widgetStyles": {}, "widgetSkins": {}
+  }
+ }
+]

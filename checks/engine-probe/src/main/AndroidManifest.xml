@@ -1,0 +1,11 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <application android:label="장면 호환성 실험" android:theme="@android:style/Theme.Material.NoActionBar" android:allowBackup="false">
+    <provider android:name=".ThemeProvider" android:authorities="io.hmg.engineprobe.theme" android:exported="false" android:grantUriPermissions="true"/>
+    <activity android:name=".ReceiveThemeActivity" android:label="테마 ZIP 수신 테스트" android:exported="true">
+      <intent-filter><action android:name="android.intent.action.SEND"/><category android:name="android.intent.category.DEFAULT"/><data android:mimeType="application/zip"/></intent-filter>
+    </activity>
+    <activity android:name=".MainActivity" android:exported="true" android:resizeableActivity="true" android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout">
+      <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+    </activity>
+  </application>
+</manifest>

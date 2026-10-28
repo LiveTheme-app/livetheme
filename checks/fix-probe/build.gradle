@@ -1,0 +1,17 @@
+plugins { id 'com.android.application' }
+android {
+ namespace 'io.hmg.wallpaperapp'
+ compileSdk 34
+ useLibrary 'android.car'
+ buildFeatures { buildConfig true }
+ defaultConfig { applicationId 'io.hmg.fixchecks'; minSdk 31; targetSdk 34; versionCode 1; versionName 'regression-only' }
+ compileOptions { sourceCompatibility JavaVersion.VERSION_1_8; targetCompatibility JavaVersion.VERSION_1_8 }
+ sourceSets.main.java.srcDir '../../app/src/main/java'
+ sourceSets.main.res.srcDir '../../app/src/main/res'
+}
+dependencies {
+ implementation 'ai.pleos.playground:Vehicle:2.3.2'
+ implementation 'androidx.dynamicanimation:dynamicanimation:1.1.0'
+}
+
+dependencies { implementation "ai.pleos.playground:NaviHelper:3.0.5"; implementation "ai.pleos.playground:FusedLocation:1.1.3" }

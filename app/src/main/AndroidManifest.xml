@@ -1,0 +1,31 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="pleos.car.permission.CAR_ENERGY"/>
+    <uses-permission android:name="pleos.car.permission.CAR_LIGHTS"/>
+    <uses-permission android:name="pleos.car.permission.CONTROL_CAR_LIGHTS"/>
+    <uses-permission android:name="pleos.car.permission.CAR_DRIVE"/>
+    <uses-permission android:name="pleos.car.permission.NAVI_ROUTE"/>
+    <uses-permission android:name="pleos.car.permission.NAVI_CUSTOM_MAP"/>
+    <uses-permission android:name="pleos.car.permission.FUSED_LOCATION"/>
+    <uses-permission android:name="android.car.permission.CAR_ENERGY"/>
+    <application android:label="라이브테마" android:appCategory="image"
+        android:theme="@style/LiveTheme" android:allowBackup="false">
+        <uses-library android:name="android.car" android:required="false"/>
+        <provider android:name=".ThemeShareProvider" android:authorities="io.hmg.wallpaperapp.themes" android:exported="false" android:grantUriPermissions="true"/>
+        <service android:name=".SongAccessService" android:label="라이브테마 곡 정보"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" android:exported="true">
+            <intent-filter><action android:name="android.service.notification.NotificationListenerService"/></intent-filter>
+        </service>
+        <activity android:name=".MainActivity" android:exported="true" android:resizeableActivity="true" android:launchMode="singleTask"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/><category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="application/zip"/><data android:mimeType="application/x-zip-compressed"/>
+            </intent-filter>
+            <!-- 1.35: distraction-optimized so Pleos keeps showing the app while driving. The app itself locks editing, dialogs, keyboard input, the market and the theme studio while driving (AppUi.refuse, MainActivity.blocked). OEM review can still refuse it on real cars. -->
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+        </activity>
+    </application>
+</manifest>

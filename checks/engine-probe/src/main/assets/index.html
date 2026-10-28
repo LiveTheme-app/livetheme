@@ -1,0 +1,14 @@
+<!doctype html><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' blob: data:; media-src 'self' blob:; worker-src 'self' blob:">
+<style>html,body,#scene{margin:0;width:100%;height:100%;overflow:hidden;background:#13242c}#status{position:absolute;z-index:2;top:20px;left:20px;color:white;background:#10212dde;padding:12px;font:18px sans-serif;max-width:85%}</style>
+<div id="scene"></div><div id="status">원본 장면을 읽는 중…</div>
+<script src="webwallgl.global.min.js"></script>
+<script>
+window.onerror=(m)=>{document.querySelector('#status').textContent='오류: '+m;console.error('PROBE_ERROR '+m)};
+(async()=>{
+ const gl=document.createElement('canvas').getContext('webgl2');console.log('WEBGL2 '+!!gl);
+ const engine=await WebWallGL.mount(document.querySelector('#scene'),{source:WebWallGL.httpSource('https://appassets.androidplatform.net/local/wallpaper'),fps:30,volume:0,fit:'cover'});
+ window.engine=engine;document.querySelector('#status').textContent='원본 scene.pkg 실시간 렌더링 실험 · WebWallGL';
+ console.log('PROBE_READY');setInterval(()=>console.log('PROBE_STATS '+JSON.stringify(engine.getStats?.()??{})),5000);
+})().catch(e=>{document.querySelector('#status').textContent='장면 호환 오류: '+e.message;console.error('PROBE_FAILED '+e.stack)});
+</script>

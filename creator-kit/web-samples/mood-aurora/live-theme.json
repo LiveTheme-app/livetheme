@@ -1,0 +1,10 @@
+{
+ "format": "live-theme", "version": 1,
+ "name": "무드 오로라 · 웹 샘플", "author": "라이브테마 샘플",
+ "background": {"type": "web", "requests": ["ambient.color"]},
+ "panel": {"clock": true, "date": true, "calendar": false, "music": true, "memo": false, "dday": false, "weather": false, "battery": false,
+  "color": "#14122A", "textColor": "#F3EEFF", "mutedColor": "#BDB2E0", "accentColor": "#B9A2FF", "font": "sans", "corner": 24, "opacity": 60},
+ "clock": {"design": "digital", "font": "light", "color": "#F3EEFF", "caption": "", "size": 1, "shadow": 10, "plate": 0, "seconds": false, "hour24": true},
+ "effect": {"type": "none", "color": "#D6F5B0", "amount": 24, "speed": 1},
+ "layouts": {}, "widgetStyles": {}, "widgetSkins": {}, "links": {}
+}

@@ -1,0 +1,11 @@
+{
+ "format": "live-theme", "version": 1,
+ "name": "봄날 연못", "author": "라이브테마",
+ "background": {"type": "web", "requests": ["media.playPause", "media.next", "media.prev"]},
+ "replacesWidgets": ["clock", "music", "battery"],
+ "panel": {"clock": false, "date": false, "calendar": false, "music": false, "memo": false, "dday": false, "weather": false, "battery": false,
+  "color": "#3A5F8F", "textColor": "#FFFFFF", "mutedColor": "#E8EEF7", "accentColor": "#FFC6D9", "font": "sans", "corner": 24, "opacity": 55},
+ "clock": {"design": "digital", "font": "light", "color": "#FFFFFF", "caption": "", "size": 1, "shadow": 10, "plate": 0, "seconds": false, "hour24": true},
+ "effect": {"type": "none", "color": "#FFC6D9", "amount": 24, "speed": 1},
+ "layouts": {}, "widgetStyles": {}, "widgetSkins": {}, "links": {}
+}

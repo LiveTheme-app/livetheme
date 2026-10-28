@@ -1,0 +1,5 @@
+// Usage: ./gradlew -I checks/engine-probe.init.gradle :engine-probe:assembleDebug
+settingsEvaluated { s ->
+ s.include(':engine-probe')
+ s.project(':engine-probe').projectDir = new File(s.settingsDir, 'checks/engine-probe')
+}

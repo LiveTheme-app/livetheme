@@ -1,0 +1,6 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+ <application android:label="라이브테마 회귀 검사" android:theme="@android:style/Theme.Material.NoActionBar" android:allowBackup="false">
+  <uses-library android:name="android.car" android:required="false"/>
+  <activity android:name="io.hmg.wallpaperapp.FixChecksActivity" android:exported="true"/>
+ </application>
+</manifest>

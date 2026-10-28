@@ -1,0 +1,11 @@
+{
+ "format": "live-theme", "version": 1,
+ "name": "구름떡 몽글 · 캐릭터 샘플", "author": "라이브테마 샘플",
+ "background": {"type": "web", "requests": ["media.playPause", "media.next", "media.prev"]},
+ "replacesWidgets": ["clock", "music", "battery"],
+ "panel": {"clock": false, "date": false, "calendar": false, "music": false, "memo": false, "dday": false, "weather": false, "battery": false,
+  "color": "#FFF6EC", "textColor": "#4A3550", "mutedColor": "#6B5570", "accentColor": "#F4A7B9", "font": "sans", "corner": 28, "opacity": 88},
+ "clock": {"design": "digital", "font": "bold", "color": "#4A3550", "caption": "", "size": 1, "shadow": 0, "plate": 0, "seconds": false, "hour24": true},
+ "effect": {"type": "none", "color": "#FFD9E4", "amount": 24, "speed": 1},
+ "layouts": {}, "widgetStyles": {}, "widgetSkins": {}, "links": {}
+}

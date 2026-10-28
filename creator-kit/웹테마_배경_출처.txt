@@ -1,0 +1,17 @@
+﻿윤슬 호수 테마 배경 그림 출처 (web-samples/yunseul-lake/web/lake-wide.webp, lake-tall.webp)
+
+- 사용자 PC의 ComfyUI에서 Z-Image-Turbo(Tongyi-MAI, Apache License 2.0)로 2026-10-27에 직접 생성했습니다.
+  모델: https://huggingface.co/Tongyi-MAI/Z-Image-Turbo  (ComfyUI 분할본: Comfy-Org/z_image_turbo)
+  Apache 2.0은 상업적 사용·수정·배포를 허용하며, 생성 결과물에 별도 제한을 두지 않습니다.
+- 특정 작가·작품·캐릭터 이름을 쓰지 않은 풍경 묘사 프롬프트만 사용했습니다(사람·글자·건물·배 없음).
+  가로: seed 22, 1920x1088 / 세로: seed 66, 1152x1664, 9 steps, cfg 1, res_multistep.
+- 시계·윤슬·달무리·충전 링·곡 정보는 그림이 아니라 scene.js가 실시간으로 그립니다.
+
+2026-10-28 추가 테마 (같은 모델, 같은 방식으로 직접 생성)
+- 봄날 연못 (web-samples/spring-pond): 가로 seed 2, 세로 seed 2
+- 비 오는 골목 (web-samples/rain-alley): 가로 seed 3, 세로 seed 2
+- 눈 내린 숲 (web-samples/snow-valley): 가로 seed 5, 세로 seed 5
+- 픽셀 노을 (web-samples/pixel-sunset): 가로 seed 2, 세로 seed 2
+  모두 1920x1088(가로) / 1152x1664(세로), 9 steps, cfg 1. 프롬프트는 풍경 묘사만 쓰고 "사람·동물·글자·로고 없음"을 넣었습니다.
+- *-mask.png 는 그림에서 색·위치로 자동 계산한 움직임 영역 지도입니다 (R 물결, G 흔들림, B 빛).
+- 창작마당 작품은 기법 참고만 했고 파일은 하나도 쓰지 않았습니다 (기법 정리 메모는 이 저장소에 넣지 않았습니다).

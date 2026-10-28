@@ -1,0 +1,462 @@
+[
+ {
+  "format": "live-theme",
+  "version": 1,
+  "name": "그린 쉼표",
+  "author": "라이브테마 기본 템플릿",
+  "background": {
+   "type": "builtin",
+   "index": 0
+  },
+  "panel": {
+   "clock": true,
+   "date": true,
+   "calendar": true,
+   "music": true,
+   "memo": false,
+   "battery": true,
+   "dday": false,
+   "weather": false,
+   "color": "#13372D",
+   "opacity": 76,
+   "textColor": "#F4F5DD",
+   "mutedColor": "#BED0BC",
+   "accentColor": "#D4E6AF",
+   "font": "sans",
+   "corner": 32,
+   "trim": "leaf"
+  },
+  "widgetStyles": {
+   "clock": "theme",
+   "calendar": "theme",
+   "music": "theme",
+   "memo": "theme",
+   "dday": "theme",
+   "weather": "theme",
+   "battery": "theme"
+  },
+  "widgetSkins": {
+   "clock": {},
+   "calendar": {
+    "opacity": 82
+   },
+   "music": {
+    "corner": 36
+   },
+   "memo": {
+    "trim": "leaf"
+   },
+   "dday": {},
+   "weather": {},
+   "battery": {}
+  },
+  "clock": {
+   "design": "digital",
+   "font": "light",
+   "color": "#F4F5DD",
+   "caption": "SLOW DOWN · BREATHE",
+   "size": 1,
+   "shadow": 8,
+   "plate": 0,
+   "seconds": false,
+   "hour24": true
+  },
+  "effect": {
+   "type": "none",
+   "color": "#D6F5B0",
+   "amount": 24,
+   "speed": 1
+  },
+  "layouts": {
+   "full/clock": "0.044248,0.049231,1.200000,1.467890",
+   "full/calendar": "0.039063,0.630675,1.000000,2.201835",
+   "full/music": "0.960938,0.878140,1.000000,1.009174",
+   "full/memo": "0.324723,0.647236,0.750000,1.376147",
+   "full/dday": "0.324723,0.915349,0.750000,1.009174",
+   "full/weather": "0.933579,0.406030,0.750000,1.376147",
+   "full/battery": "0.933579,0.060664,0.750000,1.100917",
+   "split2/clock": "0.060952,0.059553,1.000000,1.192661",
+   "split2/calendar": "0.917949,0.587031,1.000000,2.201835",
+   "split2/music": "0.917949,0.997691,1.000000,0.917431",
+   "split2/memo": "0.049612,0.906005,0.750000,1.376147",
+   "split2/dday": "0.359690,0.820331,0.750000,1.009174",
+   "split2/weather": "0.359690,0.475827,0.750000,1.284404",
+   "split2/battery": "0.049612,0.452785,0.750000,1.100917",
+   "split3/clock": "0.497608,0.000000,1.000000,1.192661",
+   "split3/calendar": "0.000000,0.518771,0.833333,2.201835",
+   "split3/music": "0.944321,0.359338,0.750000,1.009174",
+   "split3/memo": "0.944321,0.973995,0.750000,1.009174",
+   "split3/dday": "0.944321,0.973995,0.750000,1.009174",
+   "split3/weather": "0.000000,0.973366,0.833333,1.100917",
+   "split3/battery": "0.944321,0.674641,0.750000,1.055046"
+  }
+ },
+ {
+  "format": "live-theme",
+  "version": 1,
+  "name": "고요한 겨울",
+  "author": "라이브테마 기본 템플릿",
+  "background": {
+   "type": "builtin",
+   "index": 1
+  },
+  "panel": {
+   "clock": true,
+   "date": true,
+   "calendar": true,
+   "music": true,
+   "memo": true,
+   "battery": true,
+   "dday": false,
+   "weather": false,
+   "color": "#1B3040",
+   "opacity": 76,
+   "textColor": "#F4F7FC",
+   "mutedColor": "#B7CCD9",
+   "accentColor": "#BEDCF0",
+   "font": "serif",
+   "corner": 12,
+   "trim": "frost"
+  },
+  "widgetStyles": {
+   "clock": "theme",
+   "calendar": "theme",
+   "music": "theme",
+   "memo": "theme",
+   "dday": "theme",
+   "weather": "theme",
+   "battery": "theme"
+  },
+  "widgetSkins": {
+   "clock": {},
+   "calendar": {
+    "opacity": 82
+   },
+   "music": {
+    "corner": 16
+   },
+   "memo": {
+    "trim": "frost"
+   },
+   "dday": {},
+   "weather": {},
+   "battery": {}
+  },
+  "clock": {
+   "design": "digital",
+   "font": "serif",
+   "color": "#F4F7FC",
+   "caption": "WINTER STILLNESS",
+   "size": 1,
+   "shadow": 8,
+   "plate": 0,
+   "seconds": false,
+   "hour24": true
+  },
+  "effect": {
+   "type": "none",
+   "color": "#D6F5B0",
+   "amount": 24,
+   "speed": 1
+  },
+  "layouts": {
+   "full/clock": "0.044248,0.049231,1.200000,1.467890",
+   "full/calendar": "0.039063,0.630675,1.000000,2.201835",
+   "full/music": "0.960938,0.878140,1.000000,1.009174",
+   "full/memo": "0.324723,0.647236,0.750000,1.376147",
+   "full/dday": "0.324723,0.915349,0.750000,1.009174",
+   "full/weather": "0.933579,0.406030,0.750000,1.376147",
+   "full/battery": "0.933579,0.060664,0.750000,1.100917",
+   "split2/clock": "0.060952,0.059553,1.000000,1.192661",
+   "split2/calendar": "0.917949,0.587031,1.000000,2.201835",
+   "split2/music": "0.917949,0.997691,1.000000,0.917431",
+   "split2/memo": "0.049612,0.906005,0.750000,1.376147",
+   "split2/dday": "0.359690,0.820331,0.750000,1.009174",
+   "split2/weather": "0.359690,0.475827,0.750000,1.284404",
+   "split2/battery": "0.049612,0.452785,0.750000,1.100917",
+   "split3/clock": "0.497608,0.000000,1.000000,1.192661",
+   "split3/calendar": "0.000000,0.518771,0.833333,2.201835",
+   "split3/music": "0.944321,0.359338,0.750000,1.009174",
+   "split3/memo": "0.944321,0.973995,0.750000,1.009174",
+   "split3/dday": "0.944321,0.973995,0.750000,1.009174",
+   "split3/weather": "0.000000,0.973366,0.833333,1.100917",
+   "split3/battery": "0.944321,0.674641,0.750000,1.055046"
+  }
+ },
+ {
+  "format": "live-theme",
+  "version": 1,
+  "name": "느린 오후",
+  "author": "라이브테마 기본 템플릿",
+  "background": {
+   "type": "builtin",
+   "index": 2
+  },
+  "panel": {
+   "clock": true,
+   "date": true,
+   "calendar": false,
+   "music": true,
+   "memo": false,
+   "battery": true,
+   "dday": false,
+   "weather": true,
+   "color": "#F5E8CA",
+   "opacity": 91,
+   "textColor": "#FFF5D9",
+   "mutedColor": "#D7E5D0",
+   "accentColor": "#DDE8BA",
+   "font": "serif",
+   "corner": 30,
+   "trim": "ripple"
+  },
+  "widgetStyles": {
+   "clock": "theme",
+   "calendar": "theme",
+   "music": "theme",
+   "memo": "theme",
+   "dday": "theme",
+   "weather": "theme",
+   "battery": "theme"
+  },
+  "widgetSkins": {
+   "clock": {},
+   "calendar": {
+    "opacity": 97
+   },
+   "music": {
+    "corner": 34
+   },
+   "memo": {
+    "trim": "ripple"
+   },
+   "dday": {},
+   "weather": {},
+   "battery": {}
+  },
+  "clock": {
+   "design": "analog",
+   "font": "light",
+   "color": "#FFF3D8",
+   "caption": "A LITTLE RIVER TIME",
+   "size": 1,
+   "shadow": 8,
+   "plate": 0,
+   "seconds": false,
+   "hour24": true
+  },
+  "effect": {
+   "type": "none",
+   "color": "#D6F5B0",
+   "amount": 24,
+   "speed": 1
+  },
+  "layouts": {
+   "full/clock": "0.044248,0.049231,1.200000,1.467890",
+   "full/calendar": "0.039063,0.630675,1.000000,2.201835",
+   "full/music": "0.960938,0.878140,1.000000,1.009174",
+   "full/memo": "0.324723,0.647236,0.750000,1.376147",
+   "full/dday": "0.324723,0.915349,0.750000,1.009174",
+   "full/weather": "0.933579,0.406030,0.750000,1.376147",
+   "full/battery": "0.933579,0.060664,0.750000,1.100917",
+   "split2/clock": "0.060952,0.059553,1.000000,1.192661",
+   "split2/calendar": "0.917949,0.587031,1.000000,2.201835",
+   "split2/music": "0.917949,0.997691,1.000000,0.917431",
+   "split2/memo": "0.049612,0.906005,0.750000,1.376147",
+   "split2/dday": "0.359690,0.820331,0.750000,1.009174",
+   "split2/weather": "0.359690,0.475827,0.750000,1.284404",
+   "split2/battery": "0.049612,0.452785,0.750000,1.100917",
+   "split3/clock": "0.497608,0.000000,1.000000,1.192661",
+   "split3/calendar": "0.000000,0.518771,0.833333,2.201835",
+   "split3/music": "0.944321,0.359338,0.750000,1.009174",
+   "split3/memo": "0.944321,0.973995,0.750000,1.009174",
+   "split3/dday": "0.944321,0.973995,0.750000,1.009174",
+   "split3/weather": "0.000000,0.973366,0.833333,1.100917",
+   "split3/battery": "0.944321,0.674641,0.750000,1.055046"
+  }
+ },
+ {
+  "format": "live-theme",
+  "version": 1,
+  "name": "모던 웨이브",
+  "author": "라이브테마 기본 템플릿",
+  "background": {
+   "type": "builtin",
+   "index": 0
+  },
+  "panel": {
+   "clock": true,
+   "date": true,
+   "calendar": false,
+   "music": true,
+   "memo": false,
+   "battery": true,
+   "dday": false,
+   "weather": false,
+   "color": "#11182E",
+   "opacity": 84,
+   "textColor": "#F4F6FF",
+   "mutedColor": "#B6C9DC",
+   "accentColor": "#83E9E7",
+   "font": "mono",
+   "corner": 12,
+   "trim": "neon"
+  },
+  "widgetStyles": {
+   "clock": "theme",
+   "calendar": "theme",
+   "music": "theme",
+   "memo": "theme",
+   "dday": "theme",
+   "weather": "theme",
+   "battery": "theme"
+  },
+  "widgetSkins": {
+   "clock": {},
+   "calendar": {
+    "opacity": 90
+   },
+   "music": {
+    "corner": 16
+   },
+   "memo": {
+    "trim": "neon"
+   },
+   "dday": {},
+   "weather": {},
+   "battery": {}
+  },
+  "clock": {
+   "design": "digital",
+   "font": "mono",
+   "color": "#F4F6FF",
+   "caption": "MAKE ROOM FOR YOURSELF",
+   "size": 1,
+   "shadow": 8,
+   "plate": 0,
+   "seconds": false,
+   "hour24": true
+  },
+  "effect": {
+   "type": "none",
+   "color": "#D6F5B0",
+   "amount": 24,
+   "speed": 1
+  },
+  "layouts": {
+   "full/clock": "0.044248,0.049231,1.200000,1.467890",
+   "full/calendar": "0.039063,0.630675,1.000000,2.201835",
+   "full/music": "0.960938,0.878140,1.000000,1.009174",
+   "full/memo": "0.324723,0.647236,0.750000,1.376147",
+   "full/dday": "0.324723,0.915349,0.750000,1.009174",
+   "full/weather": "0.933579,0.406030,0.750000,1.376147",
+   "full/battery": "0.933579,0.060664,0.750000,1.100917",
+   "split2/clock": "0.060952,0.059553,1.000000,1.192661",
+   "split2/calendar": "0.917949,0.587031,1.000000,2.201835",
+   "split2/music": "0.917949,0.997691,1.000000,0.917431",
+   "split2/memo": "0.049612,0.906005,0.750000,1.376147",
+   "split2/dday": "0.359690,0.820331,0.750000,1.009174",
+   "split2/weather": "0.359690,0.475827,0.750000,1.284404",
+   "split2/battery": "0.049612,0.452785,0.750000,1.100917",
+   "split3/clock": "0.497608,0.000000,1.000000,1.192661",
+   "split3/calendar": "0.000000,0.518771,0.833333,2.201835",
+   "split3/music": "0.944321,0.359338,0.750000,1.009174",
+   "split3/memo": "0.944321,0.973995,0.750000,1.009174",
+   "split3/dday": "0.944321,0.973995,0.750000,1.009174",
+   "split3/weather": "0.000000,0.973366,0.833333,1.100917",
+   "split3/battery": "0.944321,0.674641,0.750000,1.055046"
+  }
+ },
+ {
+  "format": "live-theme",
+  "version": 1,
+  "name": "실버 미니멀",
+  "author": "라이브테마 기본 템플릿",
+  "background": {
+   "type": "builtin",
+   "index": 1
+  },
+  "panel": {
+   "clock": true,
+   "date": true,
+   "calendar": false,
+   "music": true,
+   "memo": false,
+   "battery": true,
+   "dday": false,
+   "weather": false,
+   "color": "#F2F1ED",
+   "opacity": 94,
+   "textColor": "#292D36",
+   "mutedColor": "#646A76",
+   "accentColor": "#75728C",
+   "font": "sans",
+   "corner": 18,
+   "trim": "line"
+  },
+  "widgetStyles": {
+   "clock": "theme",
+   "calendar": "theme",
+   "music": "theme",
+   "memo": "theme",
+   "dday": "theme",
+   "weather": "theme",
+   "battery": "theme"
+  },
+  "widgetSkins": {
+   "clock": {},
+   "calendar": {
+    "opacity": 98
+   },
+   "music": {
+    "corner": 22
+   },
+   "memo": {
+    "trim": "line"
+   },
+   "dday": {},
+   "weather": {},
+   "battery": {}
+  },
+  "clock": {
+   "design": "digital",
+   "font": "light",
+   "color": "#292D36",
+   "caption": "A MOMENT, SIMPLY",
+   "size": 1,
+   "shadow": 0,
+   "plate": 0,
+   "seconds": false,
+   "hour24": true
+  },
+  "effect": {
+   "type": "none",
+   "color": "#D6F5B0",
+   "amount": 24,
+   "speed": 1
+  },
+  "layouts": {
+   "full/clock": "0.044248,0.049231,1.200000,1.467890",
+   "full/calendar": "0.039063,0.630675,1.000000,2.201835",
+   "full/music": "0.960938,0.878140,1.000000,1.009174",
+   "full/memo": "0.324723,0.647236,0.750000,1.376147",
+   "full/dday": "0.324723,0.915349,0.750000,1.009174",
+   "full/weather": "0.933579,0.406030,0.750000,1.376147",
+   "full/battery": "0.933579,0.060664,0.750000,1.100917",
+   "split2/clock": "0.060952,0.059553,1.000000,1.192661",
+   "split2/calendar": "0.917949,0.587031,1.000000,2.201835",
+   "split2/music": "0.917949,0.997691,1.000000,0.917431",
+   "split2/memo": "0.049612,0.906005,0.750000,1.376147",
+   "split2/dday": "0.359690,0.820331,0.750000,1.009174",
+   "split2/weather": "0.359690,0.475827,0.750000,1.284404",
+   "split2/battery": "0.049612,0.452785,0.750000,1.100917",
+   "split3/clock": "0.497608,0.000000,1.000000,1.192661",
+   "split3/calendar": "0.000000,0.518771,0.833333,2.201835",
+   "split3/music": "0.944321,0.359338,0.750000,1.009174",
+   "split3/memo": "0.944321,0.973995,0.750000,1.009174",
+   "split3/dday": "0.944321,0.973995,0.750000,1.009174",
+   "split3/weather": "0.000000,0.973366,0.833333,1.100917",
+   "split3/battery": "0.944321,0.674641,0.750000,1.055046"
+  }
+ }
+]

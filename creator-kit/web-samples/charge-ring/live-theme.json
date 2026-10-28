@@ -1,0 +1,10 @@
+{
+ "format": "live-theme", "version": 1,
+ "name": "충전 링 · 웹 샘플", "author": "라이브테마 샘플",
+ "background": {"type": "web", "requests": []},
+ "panel": {"clock": true, "date": true, "calendar": false, "music": true, "memo": false, "dday": false, "weather": false, "battery": false,
+  "color": "#101826", "textColor": "#EAF2FF", "mutedColor": "#9FB3CC", "accentColor": "#7FE3C4", "font": "sans", "corner": 24, "opacity": 60},
+ "clock": {"design": "digital", "font": "light", "color": "#EAF2FF", "caption": "", "size": 1, "shadow": 8, "plate": 0, "seconds": false, "hour24": true},
+ "effect": {"type": "none", "color": "#D6F5B0", "amount": 24, "speed": 1},
+ "layouts": {}, "widgetStyles": {}, "widgetSkins": {}, "links": {}
+}

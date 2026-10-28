@@ -1,0 +1,16 @@
+<!doctype html><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob:; script-src 'self' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' blob: data:; media-src 'self' blob:; worker-src 'self' blob:">
+<style>html,body,#scene{margin:0;width:100%;height:100%;overflow:hidden;background:#13242c}#status{position:absolute;top:40%;left:10%;width:80%;text-align:center;color:#eef5f2;font:20px sans-serif;line-height:1.6}</style>
+<div id="scene"></div><div id="status">원본 장면을 준비하고 있어요</div>
+<script src="webwallgl.global.min.js"></script><script>
+(async()=>{
+ window.engine=await WebWallGL.mount(document.querySelector('#scene'),{
+  source:WebWallGL.httpSource('https://appassets.androidplatform.net/local/wallpaper'),fps:30,volume:0,fit:'cover',
+  scripts:false,audio:null,media:null,
+  onDiagnostic:(m,level)=>console.log('SCENE_DIAG '+level+' '+m),
+  onError:e=>console.error('SCENE_ERROR '+e.message)
+ });
+ document.querySelector('#status').style.display='none';console.log('SCENE_READY');
+ setInterval(()=>console.log('SCENE_STATS '+JSON.stringify(window.engine.stats)),5000);
+})().catch(e=>{document.querySelector('#status').textContent='이 장면의 일부 기능을 읽을 수 없어요. 꾸미기에서 다른 테마로 돌아갈 수 있어요.';console.error('SCENE_FAILED '+e.stack)});
+</script>

@@ -1,0 +1,5 @@
+// Usage: ./gradlew -I checks/fix-checks.init.gradle :fix-checks:assembleDebug
+settingsEvaluated { s ->
+ s.include(':fix-checks')
+ s.project(':fix-checks').projectDir = new File(s.settingsDir, 'checks/fix-probe')
+}

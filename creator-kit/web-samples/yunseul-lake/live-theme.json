@@ -1,0 +1,11 @@
+{
+ "format": "live-theme", "version": 1,
+ "name": "윤슬 호수", "author": "라이브테마",
+ "background": {"type": "web", "requests": ["media.playPause", "media.next", "media.prev"]},
+ "replacesWidgets": ["clock", "music", "battery"],
+ "panel": {"clock": false, "date": false, "calendar": false, "music": false, "memo": false, "dday": false, "weather": false, "battery": false,
+  "color": "#0A1222", "textColor": "#F4F1EA", "mutedColor": "#B8C2D6", "accentColor": "#F2D9A6", "font": "sans", "corner": 24, "opacity": 60},
+ "clock": {"design": "digital", "font": "light", "color": "#F4F1EA", "caption": "", "size": 1, "shadow": 10, "plate": 0, "seconds": false, "hour24": true},
+ "effect": {"type": "none", "color": "#F2D9A6", "amount": 24, "speed": 1},
+ "layouts": {}, "widgetStyles": {}, "widgetSkins": {}, "links": {}
+}

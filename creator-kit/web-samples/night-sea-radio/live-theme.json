@@ -1,0 +1,11 @@
+{
+ "format": "live-theme", "version": 1,
+ "name": "밤바다 라디오 · 웹 샘플", "author": "라이브테마 샘플",
+ "background": {"type": "web", "requests": ["media.playPause", "media.next", "media.prev"]},
+ "replacesWidgets": ["clock", "music"],
+ "panel": {"clock": false, "date": false, "calendar": false, "music": false, "memo": false, "dday": false, "weather": false, "battery": false,
+  "color": "#0B1626", "textColor": "#F2F6FF", "mutedColor": "#A9BCD6", "accentColor": "#8FC8FF", "font": "sans", "corner": 24, "opacity": 60},
+ "clock": {"design": "digital", "font": "light", "color": "#F2F6FF", "caption": "", "size": 1, "shadow": 10, "plate": 0, "seconds": false, "hour24": true},
+ "effect": {"type": "none", "color": "#D6F5B0", "amount": 24, "speed": 1},
+ "layouts": {}, "widgetStyles": {}, "widgetSkins": {}, "links": {}
+}
