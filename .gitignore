@@ -7,3 +7,12 @@ local.properties
 keystore.properties
 community/data/
 __pycache__/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+node_modules/
+*.log
+captures/
+.externalNativeBuild/
+.cxx/
