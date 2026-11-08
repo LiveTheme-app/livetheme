@@ -35,6 +35,7 @@ adb install apk/라이브테마팀_라이브테마_release.apk
 ./gradlew :app:assembleDebug      # 개발용 (versionName 1.38-preview)
 ./gradlew :app:assembleRelease    # 제출용 1.39 / versionCode 41
 ```
+- 버전 번호: `app/build.gradle`의 `defaultConfig`(versionCode 40 / 1.38-preview)는 개발용 debug 값이고, release만 `androidComponents`에서 41 / 1.39로 덮어써요. 개발용 debug 빌드는 그대로 두고 제출 빌드만 따로 올리려고 나눴어요.
 - release 서명: `local.properties`에 `release.signing=<keystore.properties 경로>`를 적으면 그 파일의 `storeFile/storePassword/keyAlias/keyPassword`로 서명해요. 없으면 서명되지 않은 APK가 나와요. 키와 비밀번호는 저장소에 넣지 않아요.
 - release 빌드에만 들어가는 것(`app/src/release/`): 내장 AI 테마 5종 ZIP, 앱 아이콘, 첫 실행 기본 테마, 웹 테마 런타임 수정본.
 - 이 저장소와 release APK에는 예전 기본 영상 배경 3종(달빛 연못·빗속 창가·노을 바다)을 넣지 않았어요. 그 영상은 Wallpaper Engine 편집기로 저작·녹화한 것이라 출력물 이용 조건을 확인하지 못했기 때문이에요. 그래서 debug 빌드에서 그 배경을 고르거나 `builtin` 배경을 쓰는 예제(`creator-kit/editor/samples.json`, `snow-clock`, `stacked-mono`)를 쓰면 "배경 영상을 열 수 없습니다"가 나오고 배경 영상 없이 위젯만 보여요. 테마는 내장 AI 웹 테마나 직접 고른 MP4로 쓰세요.
@@ -82,6 +83,8 @@ python community/checks.py                    # 로컬 서버 패키지 검사
 SHA256 `4B407B0490CF77A90D0E938001B1BDD541AD99A3C932ACDB126134D729EB0411`
 서명 인증서 SHA-256 `3f32abf62db5b1188f3bc26470d410445768e0a5033662ef8878f72ebf883b15` (APK Signature Scheme v2)
 
+제출 APK는 `v1.39-submitted` 태그(소스 커밋 `a2eeded`)에서 빌드했어요. 그 뒤 커밋은 문서와 저장소 설정(`.gitattributes`, `.gitignore`)만 바꿨고 앱 소스는 그대로예요. 이 저장소에서 서명 없이 다시 빌드한 release APK의 `classes.dex`와 리소스·assets는 제출 APK와 바이트까지 같아요(서명 파일과 git 커밋 기록 파일 `META-INF/version-control-info.textproto`만 달라요, 2026-11-08 확인).
+
 ## 4. 자산·모델·음원 출처
 
 | 자산 | 출처 · 라이선스 |
@@ -90,6 +93,7 @@ SHA256 `4B407B0490CF77A90D0E938001B1BDD541AD99A3C932ACDB126134D729EB0411`
 | 움직임 마스크 `*-mask.png` | 위 그림에서 색·위치로 자동 계산 |
 | 웹 테마 코드 (`scene.js`, `common.js`, `plate.js`) | 팀 작성 |
 | WebWallGL 3.0.0 | MIT (`app/src/main/assets/engine/WebWallGL-LICENSE.txt`) |
+| WebWallGL에 포함된 we-scene 코드 | MIT, aurora-wallpaper contributors (`app/src/main/assets/engine/ThirdParty-LICENSE.txt`, WebWallGL 저장소의 `renderer/vendor/we-scene/LICENSE`와 같은 파일) |
 | 글꼴 | 앱에 글꼴 파일 없음. 시스템 Noto Sans CJK(SIL OFL 1.1) 사용 (`creator-kit/글꼴_라이선스.txt`) |
 | 아이콘 | 앱 아이콘·UI 아이콘 모두 팀이 직접 그린 벡터 (`app/src/release/res/`, `app/src/main/res/drawable/ic_*.xml`) |
 | 데모 영상 음원 | Pixabay(Pixabay Content License, 상업 사용 가능·크레딧 불필요·음원 단독 재배포 금지). **APK·테마 ZIP에는 음원 없음.** 곡 목록은 아래 |
@@ -111,4 +115,14 @@ creator-kit/         PC 테마 제작실(editor/), 웹 테마 샘플(web-samples
 community/           로컬 테스트 서버(server.py)와 검사(checks.py), 기본 위젯 스타일 템플릿(presets.json)
 checks/              기기 검사 앱 2개와 Gradle init 스크립트
 apk/                 제출용 release APK
+docs/screenshots/    이 README의 에뮬레이터 화면 캡처
+gradle/wrapper/      Gradle Wrapper(8.13)
 ```
+
+### 같은 파일이 두 곳에 있는 이유
+
+| 파일 | 위치 | 이유 |
+|---|---|---|
+| AI 테마 ZIP 5개 | `creator-kit/<id>.zip` · `app/src/release/assets/bundled-themes/N-<id>.zip` | 앞은 제작실에서 열어 보는 예제, 뒤는 release APK에 내장하는 사본(앞 번호는 앱이 이름순으로 읽는 순서) |
+| `webwallgl.global.min.js`, `WebWallGL-LICENSE.txt` | `app/src/main/assets/engine/` · `checks/engine-probe/src/main/assets/` | 앱과, 앱과 따로 빌드하는 엔진 검사 앱이 각각 자기 assets에 들고 있어야 해요 |
+| 웹 테마 공통 스크립트(`common.js`, `plate.js`, `sketch.js`) | `creator-kit/web-samples/<id>/web/` | 웹 테마는 폴더 하나가 그대로 테마 ZIP이 되므로 테마마다 자기 사본을 가져요 |

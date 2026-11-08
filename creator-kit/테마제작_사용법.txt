@@ -1,8 +1,9 @@
-라이브테마 1.6-preview — 배경 영상과 위젯을 함께 만드는 테마
+라이브테마 — 배경 영상과 위젯을 함께 만드는 테마 (1.6-preview 때 쓴 안내, 1.39 제출본 저장소 기준으로 고친 곳은 [1.39]로 표시)
+[1.39] 이 저장소와 제출 APK에는 앱 기본 영상 배경 3종(연못·창가·노을 바다)이 들어 있지 않습니다. builtin 배경을 쓰는 테마는 배경 영상 없이 위젯만 보입니다.
 
 앱에서 만들기
 1. 꾸미기 → 테마 제작실.
-2. 테마 배경에서 기본 배경 또는 내 배경 영상을 선택합니다.
+2. 테마 배경에서 기본 배경 또는 내 배경 영상을 선택합니다. [1.39] 제출본에서는 내장 AI 웹 테마나 내 MP4를 쓰세요.
 3. 시계 형태(가로/세로/아날로그), 글꼴, 색, 크기, 문구, 초 표시를 조절합니다.
 4. 입자 효과(반딧불이/눈), 색, 개수, 속도와 위젯 카드 색/불투명도를 조절합니다.
 5. 미리보기 적용. 화면에서 위젯 위치·크기 편집으로 이동하면 각 창 크기별 배치를 조절할 수 있습니다.
@@ -17,6 +18,7 @@
 (예전 예제 watercolor-coast.zip은 기본 영상 배경을 담고 있어 이 저장소에서 뺐어요.)
 snow-clock.zip: 앱의 창가 배경 + 아날로그 시계 + 눈 효과.
 stacked-mono.zip: 앱의 연못 배경 + 고정폭 세로 시계.
+[1.39] 두 예제는 builtin 배경을 쓰므로 제출본에서는 "배경 영상을 열 수 없습니다"가 나오고 위젯만 보입니다.
 같은 이름의 JSON을 수정해 ZIP 최상위 이름을 live-theme.json으로 넣으면 새 테마를 만들 수 있습니다.
 
 ZIP 규격 v1
@@ -24,14 +26,15 @@ live-theme.json (필수, UTF-8, 64 KiB 이하)
 background.mp4 (background.type이 video면 필수, 64 MiB 이하)
 font.ttf 또는 font.otf (clock.font가 custom이면 필수, 4 MiB 이하)
 폴더를 통째로 감싸지 말고 위 파일들을 ZIP 최상위에 넣습니다. 최대 3개 파일, ZIP 전체 80 MiB 이하.
+[1.39] web 배경 테마는 여기에 web/ 폴더(index.html과 그림·스크립트)가 더해집니다.
 영상은 최대 4096x4096, H.264 MP4 권장. 오디오는 재생하지 않고 반복 재생합니다.
 
 주요 설정
 format: live-theme / version: 1
 name: 최대 60자 / author: 선택, 최대 40자
-background.type: keep | builtin | video
-background.index: builtin일 때 0=연못, 1=창가, 2=노을 바다
-keep는 현재 배경을 유지하며 영상/Scene 원본은 공유하지 않습니다. 완전한 테마를 공유하려면 builtin 또는 video를 고르세요.
+background.type: keep | builtin | video | workshop | web  ([1.39] workshop은 debug 빌드 전용 미리보기, web은 PC 편집기에서만 수정·공유)
+background.index: builtin일 때 0=연못, 1=창가, 2=노을 바다 ([1.39] 제출본에는 이 영상들이 없음)
+keep는 현재 배경을 유지하며 영상/Scene 원본은 공유하지 않습니다. 완전한 테마를 공유하려면 video를 고르세요([1.39] 또는 PC 편집기의 web).
 clock.design: digital | stacked | analog
 clock.font: light | serif | mono | bold | custom
 clock.color: #RRGGBB / size: 0.6~1.3 / shadow: 0~24 / plate: 0~80
@@ -51,7 +54,7 @@ layouts의 누락 항목은 받는 기기의 기존 배치를 유지합니다. �
 에뮬레이터에는 외부 메신저가 없으므로 테스트에서는 공유 선택창, 별도 일반 앱의 임시 읽기 권한 수신, 로컬 재가져오기를 확인했습니다. 외부 전송은 하지 않았습니다.
 
 현재 범위
-테마 제작·로컬 라이브러리·ZIP 공유와 가져오기까지 구현한 첫 버전입니다.
+테마 제작·로컬 라이브러리·ZIP 공유와 가져오기까지 구현한 첫 버전입니다. [1.39] 이후 web 배경과 PC 로컬 테스트 커뮤니티(community/server.py)가 더해졌습니다.
 웹 커뮤니티/서버 업로드/계정/좋아요/검색은 없습니다. 임의 JavaScript, Wallpaper Engine SceneScript, 실제 음악 비트 반응은 실행하지 않습니다.
 효과는 앱이 지원하는 형식 안에서 사용자가 설정합니다. 전용 셰이더/새로운 위젯 종류를 코드로 추가하는 제작자 SDK는 후속 범위입니다.
 제출/재배포할 영상과 글꼴은 제작자가 사용·재배포 권한을 확보해야 합니다. 예제 ZIP에는 창작마당 작품을 포함하지 않았습니다.

@@ -1,4 +1,4 @@
-라이브테마 1.31 글꼴 안내
+라이브테마 글꼴 안내 (1.39 제출본 기준)
 
 - 차량 앱: 글꼴 파일을 넣지 않았어요. Android(AAOS)에 기본으로 들어 있는 Noto Sans CJK를 굵기(400/500/600)로 나눠 써요.
   Noto Sans CJK는 SIL Open Font License 1.1(OFL) 글꼴이에요. https://openfontlicense.org
