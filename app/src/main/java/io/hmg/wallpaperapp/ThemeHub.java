@@ -1,4 +1,5 @@
 package io.hmg.wallpaperapp;
+
 import android.app.*;
 import android.content.*;
 import android.graphics.Color;
@@ -6,76 +7,686 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.view.*;
 import android.widget.*;
+
 import org.json.*;
+
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-/** Installed themes first; authoring and connection details stay out of browsing. */
+/**
+ * Installed themes first; authoring and connection details stay out of browsing.
+ */
 final class ThemeHub {
- private final Activity activity;private final ThemeStudio studio;private final Runnable addWidgets,editLayout,advanced;
- private final ThemeCommunity community;private final ExecutorService worker=Executors.newSingleThreadExecutor();
- private final LinearLayout page;private final AlertDialog dialog;private final Button[] tabs=new Button[3];private final ScrollView scroll;
- private boolean closed;private int selected,generation;private TextView networkStatus;
- static void show(Activity activity,ThemeStudio studio,Runnable addWidgets,Runnable editLayout,Runnable advanced,java.util.function.Supplier<View> quick){new ThemeHub(activity,studio,addWidgets,editLayout,advanced,quick);}
- /** Hidden developer mode (long-press the 라이브테마 title for 2 s): shows test-only items such as the community server address and the PC editor guide. */
- static boolean devMode(Activity a){return a.getPreferences(Activity.MODE_PRIVATE).getBoolean("devMode",false);}
- private ThemeHub(Activity a,ThemeStudio studio,Runnable addWidgets,Runnable editLayout,Runnable advanced,java.util.function.Supplier<View> quick){
-  activity=a;this.studio=studio;this.addWidgets=addWidgets;this.editLayout=editLayout;this.advanced=advanced;community=new ThemeCommunity(a);
-  LinearLayout shell=column();shell.setPadding(dp(AppUi.S6),dp(AppUi.S5),dp(AppUi.S6),dp(AppUi.S5));
-  Button more=AppUi.iconButton(a,"ic_more","더보기",null);more.setOnClickListener(v->showActions(v));LinearLayout header=AppUi.header(a,"꾸미기","",this::dialogDismiss,more);TextView title=(TextView)((LinearLayout)header.getChildAt(0)).getChildAt(0);long[] pressed={0};title.setOnTouchListener((v,e)->{if(e.getActionMasked()==android.view.MotionEvent.ACTION_DOWN)pressed[0]=e.getEventTime();else if(e.getActionMasked()==android.view.MotionEvent.ACTION_UP&&e.getEventTime()-pressed[0]>=2000){boolean on=!devMode(a);a.getPreferences(Activity.MODE_PRIVATE).edit().putBoolean("devMode",on).apply();AppUi.notice(a,on?"개발자 모드를 켰어요":"개발자 모드를 껐어요");}return true;});shell.addView(header);
-  LinearLayout navigation=AppUi.segments(a);String[] names={"기본 테마","내 테마","커뮤니티"};
-  for(int i=0;i<3;i++){final int n=i;tabs[i]=AppUi.addSegment(navigation,names[i],()->select(n));}LinearLayout.LayoutParams nav=new LinearLayout.LayoutParams(-1,-2);nav.setMargins(0,dp(AppUi.S5),0,dp(AppUi.S4));shell.addView(navigation,nav);
-  LinearLayout shortcuts=row();Button add=button("위젯 켜기·끄기",()->{dialogDismiss();addWidgets.run();}),edit=button("배치 편집",()->{dialogDismiss();editLayout.run();});AppUi.icon(add,AppUi.res(a,"ic_widgets"));AppUi.icon(edit,AppUi.res(a,"ic_layout"));shortcuts.addView(add,new LinearLayout.LayoutParams(0,dp(AppUi.TOUCH),1));LinearLayout.LayoutParams eb=new LinearLayout.LayoutParams(0,dp(AppUi.TOUCH),1);eb.leftMargin=dp(AppUi.S3);shortcuts.addView(edit,eb);LinearLayout.LayoutParams actions=new LinearLayout.LayoutParams(-1,-2);actions.bottomMargin=dp(AppUi.S4);shell.addView(shortcuts,actions);View controls=quick==null?null:quick.get();if(controls!=null){LinearLayout.LayoutParams qb=new LinearLayout.LayoutParams(-1,-2);qb.bottomMargin=dp(8);shell.addView(controls,qb);}
-  scroll=new ScrollView(a);scroll.setClipToPadding(false);scroll.setFillViewport(true);page=column();page.setPadding(0,0,0,dp(8));scroll.addView(page);shell.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
-  dialog=AppUi.dialog(a).setView(shell).create();dialog.setOnDismissListener(v->{closed=true;generation++;community.close();worker.shutdownNow();});dialog.setOnShowListener(v->AppUi.prepareDialog(a,dialog,shell,1480,.96f));dialog.show();select(1);
-  shell.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->{if(r-l!=or-ol&&or>ol&&!closed)select(selected);});
- }
- private void dialogDismiss(){if(dialog!=null)dialog.dismiss();}
- private int dp(int n){return AppUi.dp(activity,n);}
- private LinearLayout column(){LinearLayout v=new LinearLayout(activity);v.setOrientation(LinearLayout.VERTICAL);return v;}
- private LinearLayout row(){LinearLayout v=new LinearLayout(activity);v.setGravity(Gravity.CENTER_VERTICAL);return v;}
- private TextView text(String label,int size,int color){TextView t=AppUi.text(activity,label,size,color);t.setPadding(0,dp(3),0,dp(5));return t;}
- private Button button(String title,Runnable action){return AppUi.button(activity,title,false,action);}
- private void note(String title,String body){AppUi.section(page,title,body);}
- private void select(int index){selected=index;generation++;networkStatus=null;page.removeAllViews();scroll.scrollTo(0,0);for(int i=0;i<3;i++)AppUi.segment(tabs[i],i==index);if(index==0)presets();else if(index==1)mine();else shared();UiMotion.enter(page,dp(12),1);}
- private void presets(){note("추천 테마","");if(BundledThemes.present(activity)){work(()->BundledThemes.list(activity),value->{java.util.List<View> cards=new ArrayList<>();for(InstalledThemes.Entry entry:(java.util.List<InstalledThemes.Entry>)value)cards.add(card(entry.theme,entry.theme.optString("author","기본 테마"),"미리보기",()->detail(entry.theme,()->{studio.use(entry.folder);dialog.dismiss();AppUi.notice(activity,"테마를 적용했어요");})));gallery(cards);});return;}java.util.List<View> cards=new ArrayList<>();for(int i=0;i<ThemePresets.NAMES.length;i++)try{JSONObject theme=ThemePresets.create(i);cards.add(card(theme,ThemePresets.NOTES[i],"미리보기",()->detail(theme,()->{studio.applyPreset(theme);dialog.dismiss();AppUi.notice(activity,"테마를 적용했어요");})));}catch(Exception error){error(error);}gallery(cards);}
- private boolean current(JSONObject theme){JSONObject a=studio.config.optJSONObject("background"),b=theme.optJSONObject("background");String type=a.optString("type");if(!type.equals(b.optString("type")))return false;if(type.equals("workshop"))return a.optString("id").equals(b.optString("id"));if(type.equals("builtin"))return a.optInt("index")==b.optInt("index");return studio.config.optString("name").equals(theme.optString("name"));}
- private void gallery(java.util.List<View> cards){int width=activity.getWindow().getDecorView().getWidth();int cols=width>=dp(1900)?3:width>=dp(1100)?2:1;LinearLayout row=null;for(int i=0;i<cards.size();i++){if(i%cols==0){row=row();row.setGravity(Gravity.TOP);LinearLayout.LayoutParams rb=new LinearLayout.LayoutParams(-1,-2);rb.bottomMargin=dp(AppUi.S4);page.addView(row,rb);}LinearLayout.LayoutParams cb=new LinearLayout.LayoutParams(0,-2,1);if(i%cols>0)cb.leftMargin=dp(AppUi.S4);row.addView(cards.get(i),cb);if(i==cards.size()-1)for(int k=i%cols+1;k<cols;k++){LinearLayout.LayoutParams fb=new LinearLayout.LayoutParams(0,1,1);fb.leftMargin=dp(AppUi.S4);row.addView(new View(activity),fb);}}}
- private Typeface previewFont(File folder){if(folder==null)return null;File file=CreatorTheme.font(folder);try{return file.isFile()?Typeface.createFromFile(file):null;}catch(RuntimeException e){return null;}}
- /** Who shared it, when, and which version: re-shared themes replace the older card on the server. */
- static String byline(JSONObject item){String author=item.optString("author").trim();long at=Math.round(item.optDouble("created",0)*1000);int version=item.optInt("version",1);return (author.isEmpty()?"익명 제작자":author)+(at>0?" · "+new java.text.SimpleDateFormat("M월 d일",java.util.Locale.KOREA).format(new java.util.Date(at)):"")+(version>1?" · 버전 "+version:"");}
- private View card(JSONObject theme,String subtitle,String action,Runnable clicked){return card(theme,subtitle,action,clicked,null);}
- private View card(JSONObject theme,String subtitle,String action,Runnable clicked,Typeface font){
-  boolean active=current(theme);LinearLayout card=column();card.setPadding(dp(AppUi.S3),dp(AppUi.S3),dp(AppUi.S3),dp(AppUi.S3));card.setBackground(AppUi.card(activity,active));AppUi.pressable(card);
-  FrameLayout image=new FrameLayout(activity);image.setBackground(AppUi.shape(activity,0xff101217,AppUi.R_CARD-6,0));image.setClipToOutline(true);image.addView(new ThemePreview(activity,theme,font),new FrameLayout.LayoutParams(-1,-2));
-  if(active){TextView badge=AppUi.badge(activity,"사용 중",AppUi.ACCENT);FrameLayout.LayoutParams bb=new FrameLayout.LayoutParams(-2,-2,Gravity.TOP|Gravity.END);bb.setMargins(dp(AppUi.S2),dp(AppUi.S2),dp(AppUi.S2),0);image.addView(badge,bb);}card.addView(image,new LinearLayout.LayoutParams(-1,-2));
-  TextView title=text(theme.optString("name","이름 없는 테마"),AppUi.T_HEADLINE-2,AppUi.INK);title.setTypeface(AppUi.SEMIBOLD);title.setSingleLine(true);title.setEllipsize(android.text.TextUtils.TruncateAt.END);title.setPadding(dp(AppUi.S1),dp(AppUi.S3),dp(AppUi.S1),dp(2));card.addView(title);
-  TextView description=text(subtitle,AppUi.T_CAPTION,AppUi.MUTED);description.setPadding(dp(AppUi.S1),0,dp(AppUi.S1),dp(AppUi.S3));description.setMaxLines(1);description.setEllipsize(android.text.TextUtils.TruncateAt.END);card.addView(description);
-  Button open=button(action,clicked);open.setContentDescription(theme.optString("name")+" "+action);card.addView(open,new LinearLayout.LayoutParams(-1,dp(AppUi.TOUCH)));card.setOnClickListener(v->clicked.run());return card;
- }
- private void detail(JSONObject theme,Work apply){detail(theme,apply,null);}
- private void detail(JSONObject theme,Work apply,Typeface font){
-  LinearLayout shell=column();shell.setPadding(dp(AppUi.S5),dp(AppUi.S5),dp(AppUi.S5),dp(AppUi.S5));AlertDialog[] self={null};shell.addView(AppUi.header(activity,theme.optString("name"),"",()->{if(self[0]!=null)self[0].dismiss();}));
-  ScrollView scroller=new ScrollView(activity);LinearLayout body=column();scroller.addView(body);FrameLayout image=new FrameLayout(activity);image.setBackground(AppUi.shape(activity,AppUi.CARD,20,0));image.setClipToOutline(true);image.addView(new ThemePreview(activity,theme,font),new FrameLayout.LayoutParams(-1,-2));body.addView(image);TextView keeps=text("배경과 위젯 디자인이 바뀌고, 위젯 위치·메모·일정은 그대로예요.",AppUi.T_CALLOUT,AppUi.MUTED);keeps.setPadding(dp(AppUi.S1),dp(AppUi.S4),dp(AppUi.S1),dp(AppUi.S2));body.addView(keeps);
-  JSONObject background=theme.optJSONObject("background");if(background!=null&&"web".equals(background.optString("type"))){body.addView(text("제작자가 만든 웹 배경이에요. 인터넷 없이 이 기기 안에서만 실행되고, 충전량·무드등·곡 정보는 읽기만 해요.",15,AppUi.MUTED));JSONArray asks=background.optJSONArray("requests");if(asks!=null&&asks.length()>0){boolean color=false,bright=false,media=false;for(int i=0;i<asks.length();i++){String r=asks.optString(i);color|=r.equals("ambient.color");bright|=r.equals("ambient.brightness");media|=CreatorTheme.mediaRequest(r);}if(color||bright)body.addView(text("이 테마는 실내 무드등 "+(color&&bright?"색·밝기":color?"색":"밝기")+" 변경을 요청할 수 있어요. 요청마다 확인창이 뜨고, 주행 중에는 받지 않아요.",15,AppUi.ACCENT));if(media)body.addView(text("이 테마는 배경을 눌러 음악 재생·일시정지·곡 이동을 할 수 있어요. 확인창 없이 바로 동작하고, 주행 중에는 재생·일시정지만 돼요.",15,AppUi.ACCENT));}org.json.JSONArray replaces=theme.optJSONArray("replacesWidgets");if(replaces!=null&&replaces.length()>0){StringBuilder names=new StringBuilder();for(int i=0;i<replaces.length();i++){if(names.length()>0)names.append("·");names.append(WidgetShelf.nameOf(replaces.optString(i)));}body.addView(text("배경 안에 "+names+" 기능이 들어 있어요. 적용하면 같은 위젯을 숨길지 물어봐요. 음악 리듬은 곡 정보로 추정한 값이에요.",15,AppUi.MUTED));}}
-  JSONObject bg=theme.optJSONObject("background");if("workshop".equals(bg.optString("type"))){TextView info=text("이 배경은 기기에 연결된 창작마당 작품을 사용해요. 공유 파일에는 작품 참조와 위젯 디자인이 담겨요.",14,AppUi.MUTED);body.addView(info);body.addView(button("창작마당 작품 정보",()->{try{activity.startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(WorkshopLibrary.url(bg.optString("id")))));}catch(Exception e){AppUi.notice(activity,"창작마당 작품 번호: "+bg.optString("id"));}}),new LinearLayout.LayoutParams(-1,dp(AppUi.TOUCH)));}
-  LinearLayout.LayoutParams scrollBounds=new LinearLayout.LayoutParams(-1,0,1);scrollBounds.setMargins(0,dp(AppUi.S4),0,dp(AppUi.S4));shell.addView(scroller,scrollBounds);AlertDialog preview=AppUi.dialog(activity).setView(shell).create();self[0]=preview;Button use=button("이 테마 적용",()->{try{apply.run();preview.dismiss();}catch(Exception e){error(e);}});AppUi.styleButton(use,true);shell.addView(use,new LinearLayout.LayoutParams(-1,dp(AppUi.TOUCH)));preview.setOnShowListener(v->AppUi.prepareDialog(activity,preview,shell,1040,.90f));preview.show();
- }
- private void mine(){note("내 테마","");work(()->InstalledThemes.list(activity),value->{page.removeAllViews();showInstalled((java.util.List<InstalledThemes.Entry>)value);});}
- private void showInstalled(java.util.List<InstalledThemes.Entry> installed){note("내 테마 "+installed.size(),"");java.util.List<View> cards=new ArrayList<>();for(InstalledThemes.Entry entry:installed){JSONObject theme=entry.theme;String author=theme.optString("author");Typeface font=previewFont(entry.folder);cards.add(card(theme,entry.folder==null?"기본 테마":author.isEmpty()?"설치한 테마":author,"미리보기",()->detail(theme,()->{if(entry.folder==null)studio.applyPreset(theme);else studio.use(entry.folder);dialog.dismiss();},font),font));}gallery(cards);if(installed.isEmpty())page.addView(AppUi.empty(activity,"아직 설치된 테마가 없어요","기본 테마를 고르거나 커뮤니티에서 받아 보세요"));}
- private void showActions(View anchor){boolean dev=devMode(activity);String[] actions=dev?new String[]{"세부 조정","테마 저장·공유","위젯 디자인 한번에 선택","테마 제작실","테마 마켓 미리보기 · 시안","PC 편집기 안내 · 개발자"}:new String[]{"세부 조정","테마 저장·공유","위젯 디자인 한번에 선택","테마 제작실","테마 마켓 미리보기 · 시안"};// A list sheet instead of a PopupMenu: its rows get the 76dp car height (AppUi.carSize).
-  boolean contest=BundledThemes.present(activity);if(contest){java.util.List<String> kept=new ArrayList<>(Arrays.asList(actions));kept.remove(4);actions=kept.toArray(new String[0]);}// contest build: the market mock-up uses the built-in video stills, which it does not ship
-  AppUi.menu(activity,"더보기",actions,-1,which->{switch(contest&&which>=4?which+1:which){case 0:dialog.dismiss();advanced.run();break;case 1:saveShare();break;case 2:quickStyle();break;case 3:dialog.dismiss();studio.show();break;case 4:MarketPreview.show(activity);break;case 5:creatorInfo();break;}});}
- /** Every way to keep or send the current theme, in one place. */
- private void saveShare(){AppUi.menu(activity,"테마 저장·공유",new String[]{"내 테마로 저장","커뮤니티에 공유","테마 파일로 보내기"},-1,which->{if(which==0)nameDialog(false);else if(which==1)nameDialog(true);else shareZip();});}
- private void shared(){note("커뮤니티","");LinearLayout actions=row();actions.addView(button("새로고침",()->select(2)),new LinearLayout.LayoutParams(0,dp(AppUi.TOUCH),1));LinearLayout.LayoutParams shareBounds=new LinearLayout.LayoutParams(0,dp(AppUi.TOUCH),1);shareBounds.setMargins(dp(AppUi.S3),0,0,0);Button share=button("저장·공유",this::saveShare);actions.addView(share,shareBounds);if(devMode(activity))actions.addView(button("서버 주소 · 개발자",this::serverDialog),new LinearLayout.LayoutParams(0,dp(AppUi.TOUCH),1));page.addView(actions);TextView loading=text("테마를 불러오고 있어요…",16,AppUi.MUTED);networkStatus=loading;page.addView(loading);work(()->community.list(),value->{page.removeView(loading);JSONArray list=(JSONArray)value;if(list.length()==0)page.addView(AppUi.empty(activity,"아직 공유된 테마가 없어요","첫 번째 스타일을 올려 보세요"));java.util.List<View> cards=new ArrayList<>();for(int i=0;i<list.length();i++){JSONObject item=list.getJSONObject(i),theme=item.getJSONObject("preview");File local=community.downloaded(item.getString("id"));Typeface font=previewFont(local);cards.add(card(theme,byline(item),local==null?"다운로드":"미리보기",()->{if(local!=null){detail(theme,()->{studio.use(local);dialog.dismiss();},font);return;}loading.setText("다운로드하고 있어요…");if(loading.getParent()==null)page.addView(loading,0);work(()->community.download(item),folder->{AppUi.notice(activity,"내 테마에 저장했어요");select(2);});},font));}gallery(cards);});}
- private void creatorInfo(){AppUi.dialog(activity).setTitle("라이브테마 스튜디오").setMessage("PC에서 제작자용 편집기를 여세요.\n\nhttp://127.0.0.1:8787/creator/\n\n배경과 위젯 디자인을 편집해 ZIP으로 내보낼 수 있어요. 앱에 가져올 때 위젯 배치는 현재 배치를 유지해요. 이 주소는 서버를 실행한 PC에서만 열립니다.").setPositiveButton("확인",null).show();}
- private void serverDialog(){EditText field=AppUi.inline(new EditText(activity));field.setSingleLine();field.setText(community.endpoint());field.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_VARIATION_URI);AppUi.dialog(activity).setTitle("커뮤니티 서버 연결").setMessage("현재는 PC 로컬 테스트 서버를 사용합니다. 외부 서비스는 HTTPS 서버가 필요해요.").setView(field).setNegativeButton("취소",null).setPositiveButton("연결",(d,w)->{try{community.setEndpoint(field.getText().toString());select(2);}catch(Exception e){error(e);}}).show();}
- private void nameDialog(boolean publish){LinearLayout body=column();body.setPadding(dp(20),dp(8),dp(20),0);EditText name=AppUi.inline(new EditText(activity));name.setSingleLine();name.setText(studio.config.optString("name"));name.setHint("테마 이름");name.setContentDescription("저장할 테마 이름");name.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(60)});body.addView(name);EditText author=AppUi.inline(new EditText(activity));author.setSingleLine();author.setHint("제작자 이름 (선택)");author.setContentDescription("테마 제작자 이름");author.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(40)});CheckBox rights=new CheckBox(activity);rights.setText("직접 만든 스타일이며 포함 파일의 공유 권한을 확인했어요");if(publish){body.addView(author);body.addView(rights);body.addView(text("메모·일정·곡 정보·차량 데이터는 공유하지 않아요. 창작마당 배경은 작품 참조만 전송합니다.",13,0xffb9ced0));}AlertDialog entry=AppUi.dialog(activity).setTitle(publish?"현재 테마 공유":"내 테마로 저장").setView(body).setNegativeButton("취소",null).setPositiveButton(publish?"공유":"저장",null).create();entry.setOnShowListener(v->entry.getButton(-1).setOnClickListener(b->{try{if(name.getText().toString().trim().isEmpty())throw new IOException("테마 이름을 입력해주세요");if(publish&&!rights.isChecked())throw new IOException("공유 권한 확인에 체크해주세요");JSONObject snapshot=studio.portable();snapshot.put("name",name.getText().toString().trim()).put("author",publish?author.getText().toString().trim():snapshot.optString("author"));snapshot=CreatorTheme.validate(snapshot);final JSONObject copy=snapshot;final File font=studio.fontFile,video=studio.backgroundFile;entry.dismiss();work(()->{if(publish){if("keep".equals(copy.getJSONObject("background").optString("type")))throw new IOException("먼저 기본 테마나 공유 가능한 배경을 선택해주세요");File file=new File(activity.getCacheDir(),"live-theme-"+UUID.randomUUID()+".zip");try{CreatorTheme.export(file,copy,font,video);community.upload(file);}finally{file.delete();}}else CreatorTheme.save(activity,copy,font,video);return null;},result->{AppUi.notice(activity,publish?"커뮤니티에 공유했어요":"내 테마에 저장했어요");select(publish?2:1);});}catch(Exception e){error(e);}}));entry.show();}
- private void shareZip(){try{final JSONObject copy=studio.portable();final File font=studio.fontFile,video=studio.backgroundFile;work(()->{File file=new File(activity.getCacheDir(),"live-theme-"+UUID.randomUUID()+".zip");CreatorTheme.export(file,copy,font,video);return file;},result->{File file=(File)result;Uri uri=Uri.parse("content://io.hmg.wallpaperapp.themes/"+file.getName());Intent send=new Intent(Intent.ACTION_SEND).setType("application/zip").putExtra(Intent.EXTRA_STREAM,uri).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);send.setClipData(ClipData.newRawUri("라이브테마",uri));activity.startActivity(Intent.createChooser(send,"테마 공유"));});}catch(Exception e){error(e);}}
- private void quickStyle(){AppUi.menu(activity,"위젯 디자인 한번에 선택",WidgetDesign.NAMES,-1,index->{try{JSONObject copy=new JSONObject(studio.config.toString());for(String key:WidgetShelf.KEYS)copy.getJSONObject("widgetStyles").put(key,WidgetDesign.IDS[index]);studio.config=CreatorTheme.validate(copy);studio.persist();select(1);AppUi.notice(activity,WidgetDesign.NAMES[index]+" 디자인을 적용했어요");}catch(Exception error){error(error);}});}
- interface Work{void run()throws Exception;}interface Task{Object run()throws Exception;}interface Result{void accept(Object result)throws Exception;}
- private void work(Task task,Result done){int token=generation;worker.execute(()->{try{Object result=task.run();activity.runOnUiThread(()->{if(closed||token!=generation)return;try{done.accept(result);}catch(Exception e){error(e);}});}catch(Exception error){activity.runOnUiThread(()->{if(!closed&&token==generation){if(networkStatus!=null&&networkStatus.getParent()!=null){ViewGroup parent=(ViewGroup)networkStatus.getParent();int at=parent.indexOfChild(networkStatus);parent.removeView(networkStatus);parent.addView(AppUi.empty(activity,"커뮤니티에 연결하지 못했어요","잠시 후 새로고침을 눌러 주세요"),at);networkStatus=null;}else error(error);}});}});}
- private void error(Exception error){AppUi.dialog(activity).setTitle("잠깐 확인해주세요").setMessage(error.getMessage()==null?"잠시 후 다시 시도해주세요":error.getMessage()).setPositiveButton("확인",null).show();}
+    private final Activity activity;
+    private final ThemeStudio studio;
+    private final Runnable addWidgets, editLayout, advanced;
+    private final ThemeCommunity community;
+    private final ExecutorService worker = Executors.newSingleThreadExecutor();
+    private final LinearLayout page;
+    private final AlertDialog dialog;
+    private final Button[] tabs = new Button[3];
+    private final ScrollView scroll;
+    private boolean closed;
+    private int selected, generation;
+    private TextView networkStatus;
+
+    static void show(Activity activity, ThemeStudio studio, Runnable addWidgets, Runnable editLayout, Runnable advanced,
+                     java.util.function.Supplier<View> quick) {
+        new ThemeHub(activity, studio, addWidgets, editLayout, advanced, quick);
+    }
+
+    /**
+     * Hidden developer mode (long-press the 라이브테마 title for 2 s): shows test-only items such as the community server address and the PC editor guide.
+     */
+    static boolean devMode(Activity a) {
+        return a.getPreferences(Activity.MODE_PRIVATE).getBoolean("devMode", false);
+    }
+
+    private ThemeHub(Activity a, ThemeStudio studio, Runnable addWidgets, Runnable editLayout, Runnable advanced,
+                     java.util.function.Supplier<View> quick) {
+        activity = a;
+        this.studio = studio;
+        this.addWidgets = addWidgets;
+        this.editLayout = editLayout;
+        this.advanced = advanced;
+        community = new ThemeCommunity(a);
+        LinearLayout shell = column();
+        shell.setPadding(dp(AppUi.S6), dp(AppUi.S5), dp(AppUi.S6), dp(AppUi.S5));
+        Button more = AppUi.iconButton(a, "ic_more", "더보기", null);
+        more.setOnClickListener(v -> showActions(v));
+        LinearLayout header = AppUi.header(a, "꾸미기", "", this::dialogDismiss, more);
+        TextView title = (TextView) ((LinearLayout) header.getChildAt(0)).getChildAt(0);
+        long[] pressed = {0};
+        title.setOnTouchListener((v, e) -> {
+            if (e.getActionMasked() == android.view.MotionEvent.ACTION_DOWN)
+                pressed[0] = e.getEventTime();
+            else if (e.getActionMasked() == android.view.MotionEvent.ACTION_UP &&
+                    e.getEventTime() - pressed[0] >= 2000) {
+                boolean on = !devMode(a);
+                a.getPreferences(Activity.MODE_PRIVATE).edit().putBoolean("devMode", on).apply();
+                AppUi.notice(a, on ? "개발자 모드를 켰어요" : "개발자 모드를 껐어요");
+            }
+            return true;
+        });
+        shell.addView(header);
+        LinearLayout navigation = AppUi.segments(a);
+        String[] names = {"기본 테마", "내 테마", "커뮤니티"};
+        for (int i = 0; i < 3; i++) {
+            final int n = i;
+            tabs[i] = AppUi.addSegment(navigation, names[i], () -> select(n));
+        }
+        LinearLayout.LayoutParams nav = new LinearLayout.LayoutParams(-1, -2);
+        nav.setMargins(0, dp(AppUi.S5), 0, dp(AppUi.S4));
+        shell.addView(navigation, nav);
+        LinearLayout shortcuts = row();
+        Button add = button("위젯 켜기·끄기", () -> {
+            dialogDismiss();
+            addWidgets.run();
+        }), edit = button("배치 편집", () -> {
+            dialogDismiss();
+            editLayout.run();
+        });
+        AppUi.icon(add, AppUi.res(a, "ic_widgets"));
+        AppUi.icon(edit, AppUi.res(a, "ic_layout"));
+        shortcuts.addView(add, new LinearLayout.LayoutParams(0, dp(AppUi.TOUCH), 1));
+        LinearLayout.LayoutParams eb = new LinearLayout.LayoutParams(0, dp(AppUi.TOUCH), 1);
+        eb.leftMargin = dp(AppUi.S3);
+        shortcuts.addView(edit, eb);
+        LinearLayout.LayoutParams actions = new LinearLayout.LayoutParams(-1, -2);
+        actions.bottomMargin = dp(AppUi.S4);
+        shell.addView(shortcuts, actions);
+        View controls = quick == null ? null : quick.get();
+        if (controls != null) {
+            LinearLayout.LayoutParams qb = new LinearLayout.LayoutParams(-1, -2);
+            qb.bottomMargin = dp(8);
+            shell.addView(controls, qb);
+        }
+        scroll = new ScrollView(a);
+        scroll.setClipToPadding(false);
+        scroll.setFillViewport(true);
+        page = column();
+        page.setPadding(0, 0, 0, dp(8));
+        scroll.addView(page);
+        shell.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
+        dialog = AppUi.dialog(a).setView(shell).create();
+        dialog.setOnDismissListener(v -> {
+            closed = true;
+            generation++;
+            community.close();
+            worker.shutdownNow();
+        });
+        dialog.setOnShowListener(v -> AppUi.prepareDialog(a, dialog, shell, 1480, .96f));
+        dialog.show();
+        select(1);
+        shell.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
+            if (r - l != or - ol && or > ol && !closed)
+                select(selected);
+        });
+    }
+
+    private void dialogDismiss() {
+        if (dialog != null)
+            dialog.dismiss();
+    }
+
+    private int dp(int n) {
+        return AppUi.dp(activity, n);
+    }
+
+    private LinearLayout column() {
+        LinearLayout v = new LinearLayout(activity);
+        v.setOrientation(LinearLayout.VERTICAL);
+        return v;
+    }
+
+    private LinearLayout row() {
+        LinearLayout v = new LinearLayout(activity);
+        v.setGravity(Gravity.CENTER_VERTICAL);
+        return v;
+    }
+
+    private TextView text(String label, int size, int color) {
+        TextView t = AppUi.text(activity, label, size, color);
+        t.setPadding(0, dp(3), 0, dp(5));
+        return t;
+    }
+
+    private Button button(String title, Runnable action) {
+        return AppUi.button(activity, title, false, action);
+    }
+
+    private void note(String title, String body) {
+        AppUi.section(page, title, body);
+    }
+
+    private void select(int index) {
+        selected = index;
+        generation++;
+        networkStatus = null;
+        page.removeAllViews();
+        scroll.scrollTo(0, 0);
+        for (int i = 0; i < 3; i++)
+            AppUi.segment(tabs[i], i == index);
+        if (index == 0)
+            presets();
+        else if (index == 1)
+            mine();
+        else
+            shared();
+        UiMotion.enter(page, dp(12), 1);
+    }
+
+    private void presets() {
+        note("추천 테마", "");
+        if (BundledThemes.present(activity)) {
+            work(() -> BundledThemes.list(activity), value -> {
+                java.util.List<View> cards = new ArrayList<>();
+                for (InstalledThemes.Entry entry : (java.util.List<InstalledThemes.Entry>) value)
+                    cards.add(card(entry.theme, entry.theme.optString("author", "기본 테마"), "미리보기",
+                            () -> detail(entry.theme, () -> {
+                                studio.use(entry.folder);
+                                dialog.dismiss();
+                                AppUi.notice(activity, "테마를 적용했어요");
+                            })));
+                gallery(cards);
+            });
+            return;
+        }
+        java.util.List<View> cards = new ArrayList<>();
+        for (int i = 0; i < ThemePresets.NAMES.length; i++)
+            try {
+                JSONObject theme = ThemePresets.create(i);
+                cards.add(card(theme, ThemePresets.NOTES[i], "미리보기", () -> detail(theme, () -> {
+                    studio.applyPreset(theme);
+                    dialog.dismiss();
+                    AppUi.notice(activity, "테마를 적용했어요");
+                })));
+            } catch (Exception error) {
+                error(error);
+            }
+        gallery(cards);
+    }
+
+    private boolean current(JSONObject theme) {
+        JSONObject a = studio.config.optJSONObject("background"), b = theme.optJSONObject("background");
+        String type = a.optString("type");
+        if (!type.equals(b.optString("type")))
+            return false;
+        if (type.equals("workshop"))
+            return a.optString("id").equals(b.optString("id"));
+        if (type.equals("builtin"))
+            return a.optInt("index") == b.optInt("index");
+        return studio.config.optString("name").equals(theme.optString("name"));
+    }
+
+    private void gallery(java.util.List<View> cards) {
+        int width = activity.getWindow().getDecorView().getWidth();
+        int cols = width >= dp(1900) ? 3 : width >= dp(1100) ? 2 : 1;
+        LinearLayout row = null;
+        for (int i = 0; i < cards.size(); i++) {
+            if (i % cols == 0) {
+                row = row();
+                row.setGravity(Gravity.TOP);
+                LinearLayout.LayoutParams rb = new LinearLayout.LayoutParams(-1, -2);
+                rb.bottomMargin = dp(AppUi.S4);
+                page.addView(row, rb);
+            }
+            LinearLayout.LayoutParams cb = new LinearLayout.LayoutParams(0, -2, 1);
+            if (i % cols > 0)
+                cb.leftMargin = dp(AppUi.S4);
+            row.addView(cards.get(i), cb);
+            if (i == cards.size() - 1)
+                for (int k = i % cols + 1; k < cols; k++) {
+                    LinearLayout.LayoutParams fb = new LinearLayout.LayoutParams(0, 1, 1);
+                    fb.leftMargin = dp(AppUi.S4);
+                    row.addView(new View(activity), fb);
+                }
+        }
+    }
+
+    private Typeface previewFont(File folder) {
+        if (folder == null)
+            return null;
+        File file = CreatorTheme.font(folder);
+        try {
+            return file.isFile() ? Typeface.createFromFile(file) : null;
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Who shared it, when, and which version: re-shared themes replace the older card on the server.
+     */
+    static String byline(JSONObject item) {
+        String author = item.optString("author").trim();
+        long at = Math.round(item.optDouble("created", 0) * 1000);
+        int version = item.optInt("version", 1);
+        return (author.isEmpty() ? "익명 제작자" : author) + (at > 0 ?
+                " · " + new java.text.SimpleDateFormat("M월 d일", java.util.Locale.KOREA).format(new java.util.Date(at)) :
+                "") + (version > 1 ? " · 버전 " + version : "");
+    }
+
+    private View card(JSONObject theme, String subtitle, String action, Runnable clicked) {
+        return card(theme, subtitle, action, clicked, null);
+    }
+
+    private View card(JSONObject theme, String subtitle, String action, Runnable clicked, Typeface font) {
+        boolean active = current(theme);
+        LinearLayout card = column();
+        card.setPadding(dp(AppUi.S3), dp(AppUi.S3), dp(AppUi.S3), dp(AppUi.S3));
+        card.setBackground(AppUi.card(activity, active));
+        AppUi.pressable(card);
+        FrameLayout image = new FrameLayout(activity);
+        image.setBackground(AppUi.shape(activity, 0xff101217, AppUi.R_CARD - 6, 0));
+        image.setClipToOutline(true);
+        image.addView(new ThemePreview(activity, theme, font), new FrameLayout.LayoutParams(-1, -2));
+        if (active) {
+            TextView badge = AppUi.badge(activity, "사용 중", AppUi.ACCENT);
+            FrameLayout.LayoutParams bb = new FrameLayout.LayoutParams(-2, -2, Gravity.TOP | Gravity.END);
+            bb.setMargins(dp(AppUi.S2), dp(AppUi.S2), dp(AppUi.S2), 0);
+            image.addView(badge, bb);
+        }
+        card.addView(image, new LinearLayout.LayoutParams(-1, -2));
+        TextView title = text(theme.optString("name", "이름 없는 테마"), AppUi.T_HEADLINE - 2, AppUi.INK);
+        title.setTypeface(AppUi.SEMIBOLD);
+        title.setSingleLine(true);
+        title.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        title.setPadding(dp(AppUi.S1), dp(AppUi.S3), dp(AppUi.S1), dp(2));
+        card.addView(title);
+        TextView description = text(subtitle, AppUi.T_CAPTION, AppUi.MUTED);
+        description.setPadding(dp(AppUi.S1), 0, dp(AppUi.S1), dp(AppUi.S3));
+        description.setMaxLines(1);
+        description.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        card.addView(description);
+        Button open = button(action, clicked);
+        open.setContentDescription(theme.optString("name") + " " + action);
+        card.addView(open, new LinearLayout.LayoutParams(-1, dp(AppUi.TOUCH)));
+        card.setOnClickListener(v -> clicked.run());
+        return card;
+    }
+
+    private void detail(JSONObject theme, Work apply) {
+        detail(theme, apply, null);
+    }
+
+    private void detail(JSONObject theme, Work apply, Typeface font) {
+        LinearLayout shell = column();
+        shell.setPadding(dp(AppUi.S5), dp(AppUi.S5), dp(AppUi.S5), dp(AppUi.S5));
+        AlertDialog[] self = {null};
+        shell.addView(AppUi.header(activity, theme.optString("name"), "", () -> {
+            if (self[0] != null)
+                self[0].dismiss();
+        }));
+        ScrollView scroller = new ScrollView(activity);
+        LinearLayout body = column();
+        scroller.addView(body);
+        FrameLayout image = new FrameLayout(activity);
+        image.setBackground(AppUi.shape(activity, AppUi.CARD, 20, 0));
+        image.setClipToOutline(true);
+        image.addView(new ThemePreview(activity, theme, font), new FrameLayout.LayoutParams(-1, -2));
+        body.addView(image);
+        TextView keeps = text("배경과 위젯 디자인이 바뀌고, 위젯 위치·메모·일정은 그대로예요.", AppUi.T_CALLOUT, AppUi.MUTED);
+        keeps.setPadding(dp(AppUi.S1), dp(AppUi.S4), dp(AppUi.S1), dp(AppUi.S2));
+        body.addView(keeps);
+        JSONObject background = theme.optJSONObject("background");
+        if (background != null && "web".equals(background.optString("type"))) {
+            body.addView(text("제작자가 만든 웹 배경이에요. 인터넷 없이 이 기기 안에서만 실행되고, 충전량·무드등·곡 정보는 읽기만 해요.", 15, AppUi.MUTED));
+            JSONArray asks = background.optJSONArray("requests");
+            if (asks != null && asks.length() > 0) {
+                boolean color = false, bright = false, media = false;
+                for (int i = 0; i < asks.length(); i++) {
+                    String r = asks.optString(i);
+                    color |= r.equals("ambient.color");
+                    bright |= r.equals("ambient.brightness");
+                    media |= CreatorTheme.mediaRequest(r);
+                }
+                if (color || bright)
+                    body.addView(text("이 테마는 실내 무드등 " + (color && bright ? "색·밝기" : color ? "색" : "밝기") +
+                            " 변경을 요청할 수 있어요. 요청마다 확인창이 뜨고, 주행 중에는 받지 않아요.", 15, AppUi.ACCENT));
+                if (media)
+                    body.addView(text("이 테마는 배경을 눌러 음악 재생·일시정지·곡 이동을 할 수 있어요. 확인창 없이 바로 동작하고, 주행 중에는 재생·일시정지만 돼요.", 15,
+                            AppUi.ACCENT));
+            }
+            org.json.JSONArray replaces = theme.optJSONArray("replacesWidgets");
+            if (replaces != null && replaces.length() > 0) {
+                StringBuilder names = new StringBuilder();
+                for (int i = 0; i < replaces.length(); i++) {
+                    if (names.length() > 0)
+                        names.append("·");
+                    names.append(WidgetShelf.nameOf(replaces.optString(i)));
+                }
+                body.addView(text("배경 안에 " + names + " 기능이 들어 있어요. 적용하면 같은 위젯을 숨길지 물어봐요. 음악 리듬은 곡 정보로 추정한 값이에요.", 15,
+                        AppUi.MUTED));
+            }
+        }
+        JSONObject bg = theme.optJSONObject("background");
+        if ("workshop".equals(bg.optString("type"))) {
+            TextView info = text("이 배경은 기기에 연결된 창작마당 작품을 사용해요. 공유 파일에는 작품 참조와 위젯 디자인이 담겨요.", 14, AppUi.MUTED);
+            body.addView(info);
+            body.addView(button("창작마당 작품 정보", () -> {
+                try {
+                    activity.startActivity(
+                            new Intent(Intent.ACTION_VIEW, Uri.parse(WorkshopLibrary.url(bg.optString("id")))));
+                } catch (Exception e) {
+                    AppUi.notice(activity, "창작마당 작품 번호: " + bg.optString("id"));
+                }
+            }), new LinearLayout.LayoutParams(-1, dp(AppUi.TOUCH)));
+        }
+        LinearLayout.LayoutParams scrollBounds = new LinearLayout.LayoutParams(-1, 0, 1);
+        scrollBounds.setMargins(0, dp(AppUi.S4), 0, dp(AppUi.S4));
+        shell.addView(scroller, scrollBounds);
+        AlertDialog preview = AppUi.dialog(activity).setView(shell).create();
+        self[0] = preview;
+        Button use = button("이 테마 적용", () -> {
+            try {
+                apply.run();
+                preview.dismiss();
+            } catch (Exception e) {
+                error(e);
+            }
+        });
+        AppUi.styleButton(use, true);
+        shell.addView(use, new LinearLayout.LayoutParams(-1, dp(AppUi.TOUCH)));
+        preview.setOnShowListener(v -> AppUi.prepareDialog(activity, preview, shell, 1040, .90f));
+        preview.show();
+    }
+
+    private void mine() {
+        note("내 테마", "");
+        work(() -> InstalledThemes.list(activity), value -> {
+            page.removeAllViews();
+            showInstalled((java.util.List<InstalledThemes.Entry>) value);
+        });
+    }
+
+    private void showInstalled(java.util.List<InstalledThemes.Entry> installed) {
+        note("내 테마 " + installed.size(), "");
+        java.util.List<View> cards = new ArrayList<>();
+        for (InstalledThemes.Entry entry : installed) {
+            JSONObject theme = entry.theme;
+            String author = theme.optString("author");
+            Typeface font = previewFont(entry.folder);
+            cards.add(card(theme, entry.folder == null ? "기본 테마" : author.isEmpty() ? "설치한 테마" : author, "미리보기",
+                    () -> detail(theme, () -> {
+                        if (entry.folder == null)
+                            studio.applyPreset(theme);
+                        else
+                            studio.use(entry.folder);
+                        dialog.dismiss();
+                    }, font), font));
+        }
+        gallery(cards);
+        if (installed.isEmpty())
+            page.addView(AppUi.empty(activity, "아직 설치된 테마가 없어요", "기본 테마를 고르거나 커뮤니티에서 받아 보세요"));
+    }
+
+    private void showActions(View anchor) {
+        boolean dev = devMode(activity);
+        String[] actions = dev ?
+                new String[]{"세부 조정", "테마 저장·공유", "위젯 디자인 한번에 선택", "테마 제작실", "테마 마켓 미리보기 · 시안", "PC 편집기 안내 · 개발자"} :
+                new String[]{"세부 조정", "테마 저장·공유", "위젯 디자인 한번에 선택", "테마 제작실",
+                        "테마 마켓 미리보기 · 시안"};// A list sheet instead of a PopupMenu: its rows get the 76dp car height (AppUi.carSize).
+        boolean contest = BundledThemes.present(activity);
+        if (contest) {
+            java.util.List<String> kept = new ArrayList<>(Arrays.asList(actions));
+            kept.remove(4);
+            actions = kept.toArray(new String[0]);
+        }// contest build: the market mock-up uses the built-in video stills, which it does not ship
+        AppUi.menu(activity, "더보기", actions, -1, which -> {
+            switch (contest && which >= 4 ? which + 1 : which) {
+                case 0:
+                    dialog.dismiss();
+                    advanced.run();
+                    break;
+                case 1:
+                    saveShare();
+                    break;
+                case 2:
+                    quickStyle();
+                    break;
+                case 3:
+                    dialog.dismiss();
+                    studio.show();
+                    break;
+                case 4:
+                    MarketPreview.show(activity);
+                    break;
+                case 5:
+                    creatorInfo();
+                    break;
+            }
+        });
+    }
+
+    /**
+     * Every way to keep or send the current theme, in one place.
+     */
+    private void saveShare() {
+        AppUi.menu(activity, "테마 저장·공유", new String[]{"내 테마로 저장", "커뮤니티에 공유", "테마 파일로 보내기"}, -1, which -> {
+            if (which == 0)
+                nameDialog(false);
+            else if (which == 1)
+                nameDialog(true);
+            else
+                shareZip();
+        });
+    }
+
+    private void shared() {
+        note("커뮤니티", "");
+        LinearLayout actions = row();
+        actions.addView(button("새로고침", () -> select(2)), new LinearLayout.LayoutParams(0, dp(AppUi.TOUCH), 1));
+        LinearLayout.LayoutParams shareBounds = new LinearLayout.LayoutParams(0, dp(AppUi.TOUCH), 1);
+        shareBounds.setMargins(dp(AppUi.S3), 0, 0, 0);
+        Button share = button("저장·공유", this::saveShare);
+        actions.addView(share, shareBounds);
+        if (devMode(activity))
+            actions.addView(button("서버 주소 · 개발자", this::serverDialog),
+                    new LinearLayout.LayoutParams(0, dp(AppUi.TOUCH), 1));
+        page.addView(actions);
+        TextView loading = text("테마를 불러오고 있어요…", 16, AppUi.MUTED);
+        networkStatus = loading;
+        page.addView(loading);
+        work(() -> community.list(), value -> {
+            page.removeView(loading);
+            JSONArray list = (JSONArray) value;
+            if (list.length() == 0)
+                page.addView(AppUi.empty(activity, "아직 공유된 테마가 없어요", "첫 번째 스타일을 올려 보세요"));
+            java.util.List<View> cards = new ArrayList<>();
+            for (int i = 0; i < list.length(); i++) {
+                JSONObject item = list.getJSONObject(i), theme = item.getJSONObject("preview");
+                File local = community.downloaded(item.getString("id"));
+                Typeface font = previewFont(local);
+                cards.add(card(theme, byline(item), local == null ? "다운로드" : "미리보기", () -> {
+                    if (local != null) {
+                        detail(theme, () -> {
+                            studio.use(local);
+                            dialog.dismiss();
+                        }, font);
+                        return;
+                    }
+                    loading.setText("다운로드하고 있어요…");
+                    if (loading.getParent() == null)
+                        page.addView(loading, 0);
+                    work(() -> community.download(item), folder -> {
+                        AppUi.notice(activity, "내 테마에 저장했어요");
+                        select(2);
+                    });
+                }, font));
+            }
+            gallery(cards);
+        });
+    }
+
+    private void creatorInfo() {
+        AppUi.dialog(activity).setTitle("라이브테마 스튜디오").setMessage(
+                        "PC에서 제작자용 편집기를 여세요.\n\nhttp://127.0.0.1:8787/creator/\n\n배경과 위젯 디자인을 편집해 ZIP으로 내보낼 수 있어요. 앱에 가져올 때 위젯 배치는 현재 배치를 유지해요. 이 주소는 서버를 실행한 PC에서만 열립니다.")
+                .setPositiveButton("확인", null).show();
+    }
+
+    private void serverDialog() {
+        EditText field = AppUi.inline(new EditText(activity));
+        field.setSingleLine();
+        field.setText(community.endpoint());
+        field.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_URI);
+        AppUi.dialog(activity).setTitle("커뮤니티 서버 연결").setMessage("현재는 PC 로컬 테스트 서버를 사용합니다. 외부 서비스는 HTTPS 서버가 필요해요.")
+                .setView(field).setNegativeButton("취소", null).setPositiveButton("연결", (d, w) -> {
+                    try {
+                        community.setEndpoint(field.getText().toString());
+                        select(2);
+                    } catch (Exception e) {
+                        error(e);
+                    }
+                }).show();
+    }
+
+    private void nameDialog(boolean publish) {
+        LinearLayout body = column();
+        body.setPadding(dp(20), dp(8), dp(20), 0);
+        EditText name = AppUi.inline(new EditText(activity));
+        name.setSingleLine();
+        name.setText(studio.config.optString("name"));
+        name.setHint("테마 이름");
+        name.setContentDescription("저장할 테마 이름");
+        name.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(60)});
+        body.addView(name);
+        EditText author = AppUi.inline(new EditText(activity));
+        author.setSingleLine();
+        author.setHint("제작자 이름 (선택)");
+        author.setContentDescription("테마 제작자 이름");
+        author.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(40)});
+        CheckBox rights = new CheckBox(activity);
+        rights.setText("직접 만든 스타일이며 포함 파일의 공유 권한을 확인했어요");
+        if (publish) {
+            body.addView(author);
+            body.addView(rights);
+            body.addView(text("메모·일정·곡 정보·차량 데이터는 공유하지 않아요. 창작마당 배경은 작품 참조만 전송합니다.", 13, 0xffb9ced0));
+        }
+        AlertDialog entry = AppUi.dialog(activity).setTitle(publish ? "현재 테마 공유" : "내 테마로 저장").setView(body)
+                .setNegativeButton("취소", null).setPositiveButton(publish ? "공유" : "저장", null).create();
+        entry.setOnShowListener(v -> entry.getButton(-1).setOnClickListener(b -> {
+            try {
+                if (name.getText().toString().trim().isEmpty())
+                    throw new IOException("테마 이름을 입력해주세요");
+                if (publish && !rights.isChecked())
+                    throw new IOException("공유 권한 확인에 체크해주세요");
+                JSONObject snapshot = studio.portable();
+                snapshot.put("name", name.getText().toString().trim())
+                        .put("author", publish ? author.getText().toString().trim() : snapshot.optString("author"));
+                snapshot = CreatorTheme.validate(snapshot);
+                final JSONObject copy = snapshot;
+                final File font = studio.fontFile, video = studio.backgroundFile;
+                entry.dismiss();
+                work(() -> {
+                    if (publish) {
+                        if ("keep".equals(copy.getJSONObject("background").optString("type")))
+                            throw new IOException("먼저 기본 테마나 공유 가능한 배경을 선택해주세요");
+                        File file = new File(activity.getCacheDir(), "live-theme-" + UUID.randomUUID() + ".zip");
+                        try {
+                            CreatorTheme.export(file, copy, font, video);
+                            community.upload(file);
+                        } finally {
+                            file.delete();
+                        }
+                    } else
+                        CreatorTheme.save(activity, copy, font, video);
+                    return null;
+                }, result -> {
+                    AppUi.notice(activity, publish ? "커뮤니티에 공유했어요" : "내 테마에 저장했어요");
+                    select(publish ? 2 : 1);
+                });
+            } catch (Exception e) {
+                error(e);
+            }
+        }));
+        entry.show();
+    }
+
+    private void shareZip() {
+        try {
+            final JSONObject copy = studio.portable();
+            final File font = studio.fontFile, video = studio.backgroundFile;
+            work(() -> {
+                File file = new File(activity.getCacheDir(), "live-theme-" + UUID.randomUUID() + ".zip");
+                CreatorTheme.export(file, copy, font, video);
+                return file;
+            }, result -> {
+                File file = (File) result;
+                Uri uri = Uri.parse("content://io.hmg.wallpaperapp.themes/" + file.getName());
+                Intent send = new Intent(Intent.ACTION_SEND).setType("application/zip")
+                        .putExtra(Intent.EXTRA_STREAM, uri).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                send.setClipData(ClipData.newRawUri("라이브테마", uri));
+                activity.startActivity(Intent.createChooser(send, "테마 공유"));
+            });
+        } catch (Exception e) {
+            error(e);
+        }
+    }
+
+    private void quickStyle() {
+        AppUi.menu(activity, "위젯 디자인 한번에 선택", WidgetDesign.NAMES, -1, index -> {
+            try {
+                JSONObject copy = new JSONObject(studio.config.toString());
+                for (String key : WidgetShelf.KEYS)
+                    copy.getJSONObject("widgetStyles").put(key, WidgetDesign.IDS[index]);
+                studio.config = CreatorTheme.validate(copy);
+                studio.persist();
+                select(1);
+                AppUi.notice(activity, WidgetDesign.NAMES[index] + " 디자인을 적용했어요");
+            } catch (Exception error) {
+                error(error);
+            }
+        });
+    }
+
+    interface Work {
+        void run() throws Exception;
+    }
+
+    interface Task {
+        Object run() throws Exception;
+    }
+
+    interface Result {
+        void accept(Object result) throws Exception;
+    }
+
+    private void work(Task task, Result done) {
+        int token = generation;
+        worker.execute(() -> {
+            try {
+                Object result = task.run();
+                activity.runOnUiThread(() -> {
+                    if (closed || token != generation)
+                        return;
+                    try {
+                        done.accept(result);
+                    } catch (Exception e) {
+                        error(e);
+                    }
+                });
+            } catch (Exception error) {
+                activity.runOnUiThread(() -> {
+                    if (!closed && token == generation) {
+                        if (networkStatus != null && networkStatus.getParent() != null) {
+                            ViewGroup parent = (ViewGroup) networkStatus.getParent();
+                            int at = parent.indexOfChild(networkStatus);
+                            parent.removeView(networkStatus);
+                            parent.addView(AppUi.empty(activity, "커뮤니티에 연결하지 못했어요", "잠시 후 새로고침을 눌러 주세요"), at);
+                            networkStatus = null;
+                        } else
+                            error(error);
+                    }
+                });
+            }
+        });
+    }
+
+    private void error(Exception error) {
+        AppUi.dialog(activity).setTitle("잠깐 확인해주세요")
+                .setMessage(error.getMessage() == null ? "잠시 후 다시 시도해주세요" : error.getMessage())
+                .setPositiveButton("확인", null).show();
+    }
 }

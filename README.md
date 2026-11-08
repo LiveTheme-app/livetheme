@@ -83,7 +83,7 @@ python community/checks.py                    # 로컬 서버 패키지 검사
 SHA256 `4B407B0490CF77A90D0E938001B1BDD541AD99A3C932ACDB126134D729EB0411`
 서명 인증서 SHA-256 `3f32abf62db5b1188f3bc26470d410445768e0a5033662ef8878f72ebf883b15` (APK Signature Scheme v2)
 
-제출 APK는 `v1.39-submitted` 태그(소스 커밋 `a2eeded`)에서 빌드했어요. 그 뒤 커밋은 문서와 저장소 설정(`.gitattributes`, `.gitignore`)만 바꿨고 앱 소스는 그대로예요. 이 저장소에서 서명 없이 다시 빌드한 release APK의 `classes.dex`와 리소스·assets는 제출 APK와 바이트까지 같아요(서명 파일과 git 커밋 기록 파일 `META-INF/version-control-info.textproto`만 달라요, 2026-11-08 확인).
+제출 APK는 `v1.39-submitted` 태그(소스 커밋 `a2eeded`)에서 빌드했어요. 그 뒤 Java 소스는 서식(공백·줄바꿈)만 정리했고, 나머지 커밋은 문서와 저장소 설정(`.gitattributes`, `.gitignore`)이에요. 서식 정리 전후의 javac 바이트코드는 줄 번호표를 빼면 같아요. dex는 D8이 줄 위치에 따라 넣는 `nop` 등 배치만 달라요. dex 외 리소스·assets는 이 저장소에서 다시 빌드한 release APK와 제출 APK가 바이트까지 같아요(서명 파일과 git 커밋 기록 파일 `META-INF/version-control-info.textproto` 제외, 2026-11-08 확인).
 
 ## 4. 자산·모델·음원 출처
 
