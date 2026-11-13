@@ -15,4 +15,14 @@ const a = JSON.stringify(Array.from({length: 60}, (_, i) => Live.groove(i * 125)
 s.title = '밤 드라이브'; const b = JSON.stringify(Array.from({length: 60}, (_, i) => Live.groove(i * 125).kick.toFixed(2)));
 assert.notStrictEqual(a, b, 'songs get different patterns');
 s.playing = false; assert.strictEqual(Live.groove(5000).kick, 0);
-console.log('groove ok', {parts: [...parts], kicks, snares, hats});
+// Every title must play without throwing, including seeds >= 2^31 (signed-shift index bug fixed 2026-11-13): 304 songs.
+s.playing = true;
+const hash = str => { let x = 7; for (const c of str) x = (Math.imul(x, 31) + c.charCodeAt(0)) | 0; return x >>> 0; };
+const songs = [['느린 오후의 플레이리스트', '제작용 예시 곡'], ['느린 오후의 플레이리스트', 'x'], ['밤 드라이브', 'x'], ['Dynamite', '']];
+for (let i = 0; i < 300; i++) songs.push(['곡 ' + i, i % 2 ? 'artist ' + i : '']);
+assert(songs.some(([t, a]) => hash(t + '\u0000' + a) >= 2 ** 31), 'covers seeds >= 2^31');
+for (const [title, artist] of songs) {
+  s.title = title; s.artist = artist;
+  for (let t = 0; t < 60000; t += 250) assert.doesNotThrow(() => Live.groove(t), `${title} / ${artist} @${t}ms`);
+}
+console.log('groove ok', {parts: [...parts], kicks, snares, hats, songs: songs.length});

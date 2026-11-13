@@ -40,7 +40,7 @@ tasks.matching { it.name == 'mergeReleaseAssets' }.configureEach { task ->
 }
 androidComponents {
     onVariants(selector().withBuildType('release')) { variant ->
-        variant.outputs.each { it.versionCode.set(41); it.versionName.set('1.39') }
+        variant.outputs.each { it.versionCode.set(42); it.versionName.set('1.39') }
     }
 }
 

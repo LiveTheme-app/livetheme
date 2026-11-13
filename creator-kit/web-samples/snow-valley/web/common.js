@@ -39,7 +39,7 @@ const Live = (() => {
     if (!s.playing || !s.bpm) return QUIET;
     const seed = hash(s.title + '\u0000' + s.artist), spb = 60 / s.bpm, pos = Math.max(0, (now - (s.since || 0)) / 1000 / spb * 4), step = Math.floor(pos);
     const partOf = st => PARTS[ORDER[(Math.floor(st / 128) + (seed % 3)) % ORDER.length]];
-    const k = KICK[seed % KICK.length], sn = SNARE[(seed >> 3) % SNARE.length], hh = HAT[(seed >> 6) % HAT.length];
+    const k = KICK[seed % KICK.length], sn = SNARE[((seed >> 3) % SNARE.length + SNARE.length) % SNARE.length], hh = HAT[((seed >> 6) % HAT.length + HAT.length) % HAT.length];
     function hit(inst, st) {
       const p = partOf(st), i = st % 16, barIn = Math.floor(st / 16) % 8, v = .75 + .25 * rnd(st * 3 + seed);
       if (inst === 'kick') return (p.kick || barIn % 2 === 0 && i === 0) && k[i] === '1' ? v : 0;

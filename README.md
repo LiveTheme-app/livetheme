@@ -33,7 +33,7 @@ adb install apk/라이브테마팀_라이브테마_release.apk
 - Pleos SDK는 `settings.gradle`의 Pleos playground Maven 저장소에서 받아요(`ai.pleos.playground:Vehicle:2.3.2`, `NaviHelper:3.0.5`, `FusedLocation:1.1.3`).
 ```bash
 ./gradlew :app:assembleDebug      # 개발용 (versionName 1.38-preview)
-./gradlew :app:assembleRelease    # 제출용 1.39 / versionCode 41
+./gradlew :app:assembleRelease    # 제출용 1.39 / versionCode 42
 ```
 - release 서명: `local.properties`에 `release.signing=<keystore.properties 경로>`를 적으면 그 파일의 `storeFile/storePassword/keyAlias/keyPassword`로 서명해요. 없으면 서명되지 않은 APK가 나와요. 키와 비밀번호는 저장소에 넣지 않아요.
 - release 빌드에만 들어가는 것(`app/src/release/`): 내장 AI 테마 5종 ZIP, 앱 아이콘, 첫 실행 기본 테마, 웹 테마 런타임 수정본.
@@ -78,8 +78,8 @@ python community/checks.py                    # 로컬 서버 패키지 검사
 
 ## 3. APK 위치
 
-`apk/라이브테마팀_라이브테마_release.apk` — 라이브테마 1.39 (versionCode 41), 12,524,195 B
-SHA256 `4B407B0490CF77A90D0E938001B1BDD541AD99A3C932ACDB126134D729EB0411`
+`apk/라이브테마팀_라이브테마_release.apk` — 라이브테마 1.39 (versionCode 42), 12,524,259 B
+SHA256 `C19BD7385DF4249BD4B4A5D9290F469E3C4A8B4EA0B2CD823C85116A8B21E0EA`
 서명 인증서 SHA-256 `3f32abf62db5b1188f3bc26470d410445768e0a5033662ef8878f72ebf883b15` (APK Signature Scheme v2)
 
 ## 4. 자산·모델·음원 출처
