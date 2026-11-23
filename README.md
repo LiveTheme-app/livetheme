@@ -98,10 +98,6 @@ SHA256 `C19BD7385DF4249BD4B4A5D9290F469E3C4A8B4EA0B2CD823C85116A8B21E0EA`
 
 데모 영상 음원 (Pixabay): Korean - Korea Korean Music / lNPLUSMUSIC · Cherry blossom picnic / ECO-ART · night coffee shop / Lofi_hour · Winter Days / KitKatMusic · Video Game Pixel Chiptune Music / alex-morgan (Pixabay 표기상 AI 생성곡).
 
-### 창작마당(Wallpaper Engine Workshop) 관련
-- 저장소와 APK에 창작마당 작품 파일(그림·음악·스크립트)은 **하나도 없어요.**
-- 개발용 debug 빌드에는 사용자가 자기 PC에 받은 작품을 번호로 참조해 미리 보는 기능이 있지만, 제출용 release 빌드에서는 그 프리셋과 메뉴를 숨겼어요(`BundledThemes.present`).
-- AI 테마 5종은 창작마당 작품의 연출 기법(물결 마스크, 유리 카드 등)만 참고해 새로 만들었어요.
 
 ## 폴더 구조
 
